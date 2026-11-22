@@ -157,6 +157,15 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: bala
 .karte p { margin: 8px 0 0; }
 .befragung { background: #eef1e6; border-color: rgba(63,107,74,.45); }
 .befragung h3 { color: var(--gruen); }
+.familie { background: #fbf3e4; border: 1.5px solid rgba(201,154,63,.55); border-left: 6px solid var(--gold); }
+.familie h3 { color: #8a6520; font-size: 18px; text-transform: uppercase; letter-spacing: .06em; font-family: var(--font-text); font-weight: 600; }
+.familie .fam-titel { font-family: var(--font-display); font-size: 24px; margin-top: 4px; }
+.familie.erledigt { background: #eef1e6; border-color: rgba(63,107,74,.45); border-left-color: var(--gruen); }
+.fam-aktion { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.fam-status { color: var(--gruen); font-weight: 600; }
+.knopf.gruen { background: var(--gruen); box-shadow: 0 2px 0 #24412c; }
+.knopf.klein { padding: 6px 12px; font-size: 15px; }
+.fam-punkt { position: absolute; left: 5px; bottom: 5px; width: 12px; height: 12px; border-radius: 50%; background: var(--gruen); border: 2px solid #fff7ea; }
 .haken { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 16px; }
 .haken input { width: 22px; height: 22px; accent-color: var(--gruen); }
 
@@ -658,6 +667,35 @@ Mama und Papa ziehen schon ihre Jacken an. Konrad flattert aufgeregt hin und her
     beweis: "Urkunde: Meisterdetektiv von Krefeld", danach: `Richtig, der Stadtwald! Vorbei am Stadtwaldhaus und den Tennisplätzen geht es zum Deuß-Tempel. Irgendwo dort wartet die echte Truhe. Wenn ihr sie gefunden habt, dreh am Zahlenschloss die vier Ziffern aus deinem Notizbuch. Damit ist der Fall des Krefelder Seidenschlüssels gelöst. Du bist offiziell Meisterdetektiv von Krefeld!` }
 ];
 
+/* Familienkarten: eine gemeinsame Sache für den Abend, passend zum Kapitel. Haken gelten für die ganze Familie. */
+const FAMILIE = {
+  1: { titel: "Das Familien-Detektivbüro", text: "Eröffnet heute euer Detektivbüro. Jeder bekommt einen Zettel als Notizbuch und einen Detektivnamen, den sich die anderen ausdenken. Wie heißen Mama und Papa als Detektive?" },
+  2: { titel: "Euer Gästebuch", text: "Im Rathaus gibt es ein altes Gästebuch. Legt heute euer eigenes Familien-Gästebuch an, ein Heft reicht. Jeder schreibt einen Satz hinein: Was war heute schön? Ihr könnt jeden Abend im Advent weiterschreiben." },
+  3: { titel: "Reibekuchen-Abend", text: "Macht heute zusammen Reibekuchen oder esst welche auf dem Weihnachtsmarkt. Philip rechnet aus, was eine Portion kostet." },
+  4: { titel: "Schlüsselsuche", text: "Einer versteckt einen Schlüssel in der Wohnung, die anderen suchen ihn mit „heiß“ und „kalt“. Jeder darf einmal verstecken." },
+  5: { ausflug: true, titel: "Ausflug in die Innenstadt", text: "Heute oder morgen: Zählt die Säulen am Rathaus, geht über den Weihnachtsmarkt an der Dionysiuskirche und sucht die Philadelphiastraße. Philip führt euch, er kennt ja die Geschichte." },
+  6: { titel: "Komplimente-Stiefel", text: "Jeder schreibt heimlich für jeden anderen ein Kompliment auf einen Zettel und steckt ihn in dessen Schuh. Vorgelesen wird erst, wenn alle fertig sind." },
+  7: { titel: "Nur ein Koffer", text: "Die von der Leyens mussten ihre Heimat verlassen. Stellt euch vor, ihr dürft nur einen Koffer mitnehmen. Jeder nennt drei Dinge, die hinein müssen, und erklärt, warum." },
+  8: { titel: "Papier weben", text: "Schneidet Papierstreifen in zwei Farben und webt sie zusammen zu einem Muster. Daraus wird ein Lesezeichen oder eine Weihnachtskarte." },
+  9: { titel: "Lieblingslieder", text: "Wie die Orgel in der Mennonitenkirche: Jeder sucht sein liebstes Weihnachtslied aus. Hört sie zusammen an oder singt mit, so laut ihr euch traut." },
+  10: { titel: "Stoffe ertasten", text: "Holt verschiedene Stoffe aus dem Schrank: Wolle, Baumwolle, vielleicht Samt oder Seide. Mit verbundenen Augen wird getastet und geraten. Wer erkennt die meisten?" },
+  11: { titel: "Traumhaus", text: "Jeder zeichnet in zehn Minuten sein Traumhaus. Dann werden die Bilder gemischt und alle raten, welches von wem ist." },
+  12: { ausflug: true, titel: "Ausflug nach Linn", text: "Heute oder morgen: Deutsches Textilmuseum (Jacke anlassen, drinnen sind nur 18 Grad), über den Andreasmarkt zur Burg Linn und auf den Turm. Danach ist ein heißer Kakao verdient." },
+  13: { titel: "Burgbau", text: "Baut zusammen eine Burg mit Wassergraben, aus Kartons, aus Bausteinen oder in Minecraft. Wichtig: Sie muss gegen Angreifer sicher sein!" },
+  14: { titel: "Geheimbotschaften", text: "Jeder schreibt jedem anderen eine kurze Botschaft rückwärts. Wer entschlüsselt seine am schnellsten?" },
+  15: { titel: "Festessen wie beim Kurfürsten", text: "Heute deckt Philip den Tisch besonders festlich, mit Kerzen und gefalteten Servietten. Wer mag, spricht zu Beginn einen kleinen Trinkspruch." },
+  16: { titel: "Zwei Wahrheiten, eine Flunkerei", text: "Jeder erzählt drei Sätze über sich. Zwei stimmen, einer ist geflunkert. Die anderen raten, welcher. Wer ist der beste Flunker-Detektiv?" },
+  17: { titel: "Schätzen und zählen", text: "Wie viele Schritte sind es von eurer Haustür bis zur nächsten Ecke oder einmal um den Block? Jeder schätzt vorher, dann wird gezählt." },
+  18: { titel: "Eure Familienchronik", text: "Die Seidenweber hatten ihr Buch. Schreibt heute gemeinsam auf, was die schönsten Momente eures Jahres waren. Das wird die erste Seite eurer Familienchronik." },
+  19: { ausflug: true, titel: "Ausflug zu den Römern", text: "Heute oder morgen: Archäologisches Museum an der Burg Linn mit den Funden aus Gelduba und dem Fürstengrab, danach ein Spaziergang nach Gellep an den Rhein." },
+  20: { titel: "Römische Zahlen", text: "Sucht im Haus und draußen römische Zahlen: auf Uhren, in Büchern, an Gebäuden. Wer findet die größte Zahl?" },
+  21: { titel: "Unser Schatz", text: "Jeder sucht einen Gegenstand aus, der in 1500 Jahren etwas über eure Familie erzählen würde. Warum gerade der?" },
+  22: { titel: "Geschichten-Abend", text: "Holt ein altes Fotoalbum oder ein Erbstück hervor. Mama und Papa erzählen, was dahintersteckt. Vielleicht gibt es Geschichten, die Philip noch nie gehört hat." },
+  23: { titel: "Danke-Runde", text: "Lotta wollte, dass jemand etwas Neues entdeckt. Jeder erzählt, was er in diesem Advent entdeckt hat, und wem er dafür danke sagen möchte." },
+  24: { titel: "Der Fall in fünf Minuten", text: "Heute Abend erzählt Philip euch den ganzen Fall vom Seidenschlüssel in fünf Minuten, mit allen Beweisstücken aus seinem Notizbuch. Konrad wäre stolz." },
+  25: { ausflug: true, titel: "Spaziergang zum Deuß-Tempel", text: "Zieht euch warm an und geht gemeinsam in den Stadtwald. Die echte Truhe wartet." }
+};
+
 /* ===== Speicher ===== */
 const KEY = "seidenschluessel-v1";
 const APP_ID = "seidenschluessel";
@@ -672,6 +710,80 @@ try { vorschau = localStorage.getItem(KEY + "-vorschau") === "1"; } catch (e) {}
 function lokalSchreiben() { try { localStorage.setItem(KEY, JSON.stringify(zustand)); } catch (e) {} }
 function speichern() { if (FSY) FSY.stamp(zustand); lokalSchreiben(); if (FSY) FSY.saved(); }
 const elternUI = { offen: false, entsperrt: false, kind: null };
+
+/* ===== Familienkarten: gemeinsamer Stand im Familienspeicher (Tabelle family_checks) ===== */
+const SB_URL = "https://rcfpnxcjfzeieqpvmkep.supabase.co";
+const SB_KEY = "sb_publishable_qpgo7Vggg62vdIT0kqM9uA_Ti0gFrW1";
+let familie = {}, namen = {};
+try { familie = JSON.parse(localStorage.getItem(KEY + "-familie")) || {}; namen = JSON.parse(localStorage.getItem(KEY + "-namen")) || {}; } catch (e) {}
+function familieMerken() { try { localStorage.setItem(KEY + "-familie", JSON.stringify(familie)); localStorage.setItem(KEY + "-namen", JSON.stringify(namen)); } catch (e) {} }
+async function sbFetch(path, opt) {
+  opt = opt || {};
+  if (!FSY || !FSY.session()) throw new Error("nicht angemeldet");
+  let s = FSY.session();
+  if (Date.now() >= s.exp) { await FSY.loadMember(); s = FSY.session(); if (!s) throw new Error("nicht angemeldet"); }
+  const res = await fetch(SB_URL + path, { method: opt.method || "GET", cache: "no-store",
+    headers: Object.assign({ apikey: SB_KEY, Authorization: "Bearer " + s.access, "Content-Type": "application/json" }, opt.headers || {}),
+    body: opt.body ? JSON.stringify(opt.body) : undefined });
+  if (!res.ok) throw new Error("Fehler " + res.status);
+  const t = await res.text(); return t ? JSON.parse(t) : null;
+}
+async function familieHochladen(item) {
+  const m = FSY && FSY.member(); const e = familie[item];
+  if (!m || !e) return;
+  await sbFetch("/rest/v1/family_checks?on_conflict=family_id,app,item", { method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: { family_id: m.family_id, app: APP_ID, item, done: e.done, member_id: m.id, updated_at: e.at } });
+  e.pending = false; familieMerken();
+}
+async function familieLaden() {
+  const m = FSY && FSY.member(); if (!m) return;
+  try {
+    const rows = await sbFetch(`/rest/v1/family_checks?select=item,done,member_id,updated_at&app=eq.${APP_ID}`);
+    (rows || []).forEach(r => {
+      const lokal = familie[r.item];
+      if (lokal && lokal.pending && lokal.at > r.updated_at) return;
+      familie[r.item] = { done: r.done, by: r.member_id, at: r.updated_at };
+    });
+    for (const item of Object.keys(familie)) if (familie[item].pending) { try { await familieHochladen(item); } catch (e) {} }
+    const fehlt = Object.values(familie).some(e => e.by && !namen[e.by]);
+    if (fehlt) { const ms = await FSY.familyMembers(); (ms || []).forEach(x => { namen[x.id] = x.display_name; }); }
+    familieMerken(); familieNeuZeichnen();
+  } catch (e) {}
+}
+function familieNeuZeichnen() {
+  const box = document.getElementById("familie-karte");
+  const m = location.hash.match(/^#tuer-(\d{1,2})$/);
+  if (box && m) { box.innerHTML = familienKarte(+m[1]); verbindeFamilie(+m[1]); }
+  else if (!location.hash) zeigeKalender();
+}
+function familienKarte(n) {
+  const f = FAMILIE[n]; if (!f) return "";
+  const e = familie["tuer-" + n];
+  const erledigt = e && e.done;
+  const wer = erledigt && e.by && namen[e.by] ? ` von ${esc(namen[e.by])}` : "";
+  const wann = erledigt && e.at ? ` am ${new Date(e.at).toLocaleDateString("de-DE", { day: "numeric", month: "long" })}` : "";
+  return `<div class="karte familie ${erledigt ? "erledigt" : ""}">
+    <h3>${f.ausflug ? "Familien-Ausflug" : "Für die ganze Familie"}</h3>
+    <p class="fam-titel">${esc(f.titel)}</p><p>${esc(f.text)}</p>
+    <div class="fam-aktion">${erledigt
+      ? `<span class="fam-status">✓ Gemacht${wer}${wann}</span> <button class="knopf leise klein" type="button" id="fam-toggle">Doch noch nicht</button>`
+      : `<button class="knopf gruen" type="button" id="fam-toggle">Haben wir gemacht</button>`}</div>
+  </div>`;
+}
+function verbindeFamilie(n) {
+  const b = document.getElementById("fam-toggle"); if (!b) return;
+  b.addEventListener("click", async () => {
+    const item = "tuer-" + n, m = FSY && FSY.member();
+    const done = !(familie[item] && familie[item].done);
+    familie[item] = { done, by: m ? m.id : null, at: new Date().toISOString(), pending: true };
+    if (m) namen[m.id] = m.display_name;
+    familieMerken();
+    document.getElementById("familie-karte").innerHTML = familienKarte(n); verbindeFamilie(n);
+    if (done && FSY && FSY.member()) FSY.log(APP_ID, "familienkarte", { tuer: n });
+    try { await familieHochladen(item); } catch (e) {}
+  });
+}
 
 /* ===== Datum ===== */
 function heute() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
@@ -718,7 +830,7 @@ function zeigeKalender() {
       const bild = geloest && BILDER[n] ? `<span class="bildchen" style="background-image:url('${BILDER[n]}')"></span>` : "";
       const label = geloest ? `Tür ${n}, gelöst` : offen ? `Tür ${n} öffnen` : n === 25 ? "Das letzte Kapitel, öffnet am 25. Dezember nach Tür 24" : `Tür ${n}, öffnet am ${n}. Dezember`;
       html += `<button class="${klassen}" type="button" data-tuer="${n}" ${offen ? "" : "aria-disabled=\"true\""} aria-label="${label}">
-        ${bild}<span class="nr">${n}</span>${!offen ? `<span class="datum">${n === 25 ? "Bonus" : `ab ${n}.12.`}</span>` : ""}${geloest ? `<span class="stempel" aria-hidden="true">✓</span>` : ""}
+        ${bild}<span class="nr">${n}</span>${!offen ? `<span class="datum">${n === 25 ? "Bonus" : `ab ${n}.12.`}</span>` : ""}${geloest ? `<span class="stempel" aria-hidden="true">✓</span>` : ""}${familie["tuer-" + n] && familie["tuer-" + n].done ? `<span class="fam-punkt" title="Familienkarte gemacht"></span>` : ""}
       </button>`;
     }
     html += `</div></section>`;
@@ -799,6 +911,7 @@ function zeigeTuer(n) {
         <div class="text"><h2>${esc(t.titel)}</h2><p class="ort">${esc(t.ort)} · ${w.bonus ? "Weihnachten" : `Woche ${w.nr}: ${esc(w.titel)}`}</p>${t.text.split(/\n\s*\n/).map((a, i) => `<p class="${i === 0 ? "erzaehlung" : "absatz"}">${esc(a.trim())}</p>`).join("")}</div>
         ${befragung}${raetselKarte}
         <div id="ergebnis">${geloest ? ergebnisHtml(n) : ""}</div>
+        <div id="familie-karte">${familienKarte(n)}</div>
       </div>
     </div>
   </article>`;
@@ -808,6 +921,7 @@ function zeigeTuer(n) {
   document.getElementById("zurueck").addEventListener("click", () => { location.hash = ""; });
   const bf = document.getElementById("befragt");
   if (bf) bf.addEventListener("change", e => { zustand.befragt[n] = e.target.checked; speichern(); });
+  verbindeFamilie(n);
   if (geloest) { verbindeWeiter(n); return; }
 
   const tb = document.getElementById("tipp");
@@ -883,6 +997,8 @@ function zeigeNotizbuch() {
     <div>${[6, 12, 18, 23].map(n => g[n] ? TUEREN[n - 1].ziffer : "?").join("  ·  ")}</div>
     <h3>Verdächtige</h3>
     <div class="verdaechtig">${personen.length ? personen.map(p => `<div class="person"><b>${esc(p.name)}</b> (${esc(p.rolle)})<span class="chip ${p.chip[0]}">${p.chip[1]}</span><br>${esc(p.notiz)}</div>`).join("") : `<div class="leise">Noch niemand. Öffne die erste Tür!</div>`}</div>
+    <h3>Familienkarten</h3>
+    <div>${Object.values(familie).filter(e => e.done).length} von ${Object.keys(FAMILIE).length} zusammen gemacht</div>
     <h3>Beweisstücke</h3>
     <ul>${beweise.length ? beweise.map(t => `<li>Tür ${t.n}: ${esc(t.beweis)}</li>`).join("") : `<li class="leise">Noch keine Beweise gesammelt.</li>`}</ul>
   </div>`;
@@ -920,6 +1036,9 @@ if (FSY) FSY.attach({
   showChild: (data, info) => { elternUI.kind = { data, name: info.name, at: info.at }; zeigeKalender(); },
   btn: "knopf", btn2: "knopf leise"
 });
+familieLaden();
+document.addEventListener("visibilitychange", () => { if (!document.hidden) familieLaden(); });
+window.addEventListener("hashchange", () => { if (location.hash.startsWith("#tuer-")) familieLaden(); });
 try { if ("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(() => {}); } catch (e) {}
 </script>
 </body>
