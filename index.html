@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Der Krefelder Seidenschlüssel</title>
+<meta name="theme-color" content="#1d2940">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Literata:opsz,wght@7..72,400;7..72,600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Ein Buch in der Winternacht: nachtblauer Einband, Papierseiten, Gold für Zahlen, Rostrot für Siegel und Konrads Schal. */
+  --nacht: #1d2940;
+  --nacht-tief: #141d2e;
+  --papier: #f4ecdb;
+  --tinte: #2d2318;
+  --tinte-hell: #6b5c48;
+  --rost: #a8392a;
+  --gold: #c99a3f;
+  --gruen: #3f6b4a;
+  --w1: #f6ecd9;
+  --w2: #efe7e0;
+  --w3: #ebeae4;
+  --w4: #ecdcbc;
+  --font-display: "IM Fell English", "Iowan Old Style", Georgia, serif;
+  --font-text: "Literata", Georgia, "Times New Roman", serif;
+  --font-hand: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--nacht-tief);
+  background-image: radial-gradient(ellipse at top, #2a3a58 0%, var(--nacht-tief) 70%);
+  color: var(--tinte);
+  font-family: var(--font-text);
+  font-size: 18px;
+  line-height: 1.55;
+  min-height: 100%;
+}
+.buch {
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--papier);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.25), 0 20px 60px rgba(0,0,0,.5);
+  padding-bottom: 84px;
+  position: relative;
+}
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; margin: 0; }
+
+/* Einband */
+.einband { position: relative; background: var(--nacht); color: var(--papier); }
+.einband img { display: block; width: 100%; height: auto; aspect-ratio: 1024/572; object-fit: cover; opacity: .9; }
+.einband .titel {
+  position: absolute; inset: auto 0 0 0;
+  padding: 48px 20px 16px;
+  background: linear-gradient(to top, rgba(20,29,46,.95) 30%, rgba(20,29,46,0));
+}
+.einband h1 { font-size: 34px; line-height: 1.05; color: #f3dfaa; }
+.einband p { margin: 6px 0 0; font-style: italic; font-family: var(--font-display); font-size: 18px; color: #e7dcc4; }
+
+.status { padding: 18px 20px 6px; display: grid; gap: 12px; }
+.status .zeile { font-size: 17px; }
+.knopf {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 18px; border-radius: 999px; border: 0;
+  background: var(--rost); color: #fff7ea; font-weight: 600;
+  box-shadow: 0 2px 0 #6e2219;
+}
+.knopf.leise { background: transparent; color: var(--tinte); border: 1.5px solid var(--tinte-hell); box-shadow: none; }
+.knopf:disabled { opacity: .5; cursor: default; }
+
+/* Zahlenschloss */
+.schloss { display: flex; align-items: center; gap: 10px; }
+.schloss .label { font-family: var(--font-hand); font-size: 22px; color: var(--tinte-hell); }
+.ziffern { display: flex; gap: 6px; }
+.ziffer {
+  width: 36px; height: 46px; border-radius: 6px;
+  display: grid; place-items: center;
+  background: linear-gradient(#3b2f22, #241b12); color: #f3dfaa;
+  font-family: var(--font-display); font-size: 26px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.4);
+  font-variant-numeric: tabular-nums;
+}
+.ziffer.leer { color: #7d6a50; }
+
+/* Kalender */
+.woche { padding: 18px 16px 4px; }
+.woche h2 { font-size: 22px; display: flex; align-items: baseline; gap: 10px; }
+.woche h2 small { font-family: var(--font-text); font-size: 14px; color: var(--tinte-hell); font-style: normal; }
+.tueren { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+@media (min-width: 480px) { .tueren { grid-template-columns: repeat(6, 1fr); } }
+.tuer {
+  position: relative; aspect-ratio: 3/4; border-radius: 6px;
+  border: 1.5px solid rgba(45,35,24,.35);
+  background: var(--wt, var(--w1));
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 4px; overflow: hidden;
+  box-shadow: 0 2px 0 rgba(45,35,24,.18);
+}
+.tuer .nr { font-family: var(--font-display); font-size: 34px; line-height: 1; }
+.tuer .datum { font-size: 11px; color: var(--tinte-hell); margin-top: 4px; }
+.tuer.zu { opacity: .72; }
+.tuer.zu .nr { color: var(--tinte-hell); }
+.tuer.offen { border: 2px solid var(--gold); box-shadow: 0 0 0 3px rgba(201,154,63,.25), 0 2px 0 rgba(45,35,24,.2); }
+.tuer.heute { animation: leuchten 2.4s ease-in-out infinite; }
+@keyframes leuchten { 50% { box-shadow: 0 0 0 6px rgba(201,154,63,.35), 0 2px 0 rgba(45,35,24,.2); } }
+@media (prefers-reduced-motion: reduce) { .tuer.heute { animation: none; } }
+.tuer.geloest { padding: 0; }
+.tuer.geloest .bildchen { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.tuer.geloest .nr { position: relative; color: #fff7ea; text-shadow: 0 1px 4px rgba(0,0,0,.8); }
+.stempel {
+  position: absolute; right: 4px; bottom: 4px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--rost); color: #fff; font-size: 14px;
+  display: grid; place-items: center; box-shadow: 0 1px 3px rgba(0,0,0,.4);
+}
+
+/* Seite einer Tür */
+.seite { padding: 0 0 20px; }
+.seitenkopf { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+.zurueck { background: none; border: 0; padding: 6px 0; font-size: 16px; color: var(--tinte-hell); }
+.kapitel-nr { font-family: var(--font-display); font-style: italic; color: var(--tinte-hell); }
+.bildrahmen {
+  margin: 0 12px; padding: 6px; background: #fffaf0;
+  box-shadow: 0 1px 0 rgba(0,0,0,.08), 0 6px 18px rgba(45,35,24,.25);
+  transform: rotate(-0.4deg);
+}
+.bildrahmen img { display: block; width: 100%; height: auto; }
+.platzhalter {
+  aspect-ratio: 1024/572; display: grid; place-items: center; text-align: center;
+  background: var(--wt); border: 1px dashed var(--tinte-hell); color: var(--tinte-hell);
+  font-family: var(--font-display); font-style: italic; padding: 16px;
+}
+.platzhalter b { display: block; font-size: 56px; font-style: normal; color: var(--tinte); line-height: 1; }
+.text { padding: 18px 20px 0; max-width: 65ch; }
+.text h2 { font-size: 30px; line-height: 1.1; }
+.ort { margin: 4px 0 12px; color: var(--tinte-hell); font-size: 15px; }
+.erzaehlung::first-letter {
+  font-family: var(--font-display); float: left; font-size: 3.2em; line-height: .85;
+  padding: 4px 8px 0 0; color: var(--rost);
+}
+.erzaehlung, .absatz { margin: 0 0 .85em; }
+
+.karte {
+  margin: 18px 16px 0; padding: 16px; border-radius: 8px;
+  background: #fffaf0; border: 1.5px solid rgba(45,35,24,.25);
+}
+.karte h3 { font-size: 22px; display: flex; align-items: center; gap: 8px; }
+.karte p { margin: 8px 0 0; }
+.befragung { background: #eef1e6; border-color: rgba(63,107,74,.45); }
+.befragung h3 { color: var(--gruen); }
+.haken { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 16px; }
+.haken input { width: 22px; height: 22px; accent-color: var(--gruen); }
+
+.antwort { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; align-items: end; }
+.feld { display: grid; gap: 4px; }
+.feld label { font-size: 14px; color: var(--tinte-hell); }
+.feld input {
+  width: 160px; padding: 10px 12px; border-radius: 6px;
+  border: 1.5px solid var(--tinte-hell); background: #fff; font-size: 20px;
+}
+.feld input.klein { width: 90px; }
+.code { display: flex; gap: 8px; }
+.code input {
+  width: 52px; height: 64px; text-align: center; border-radius: 8px;
+  background: linear-gradient(#3b2f22, #241b12); color: #f3dfaa; border: 0;
+  font-family: var(--font-display); font-size: 34px;
+}
+.wahl { display: grid; gap: 8px; margin-top: 14px; }
+.wahl button {
+  text-align: left; padding: 12px 14px; border-radius: 8px;
+  border: 1.5px solid var(--tinte-hell); background: #fff;
+}
+.wahl button[aria-pressed="true"] { border-color: var(--rost); background: #fbeee9; }
+.rueckmeldung { margin-top: 12px; min-height: 1.5em; font-style: italic; }
+.rueckmeldung.falsch { color: var(--rost); }
+.tipp { margin-top: 12px; display: flex; gap: 10px; align-items: flex-start; }
+.tipp .bubble {
+  background: var(--nacht); color: var(--papier); padding: 10px 14px; border-radius: 12px 12px 12px 2px;
+  font-family: var(--font-hand); font-size: 22px; line-height: 1.25;
+}
+.geloest-box {
+  margin: 18px 16px 0; padding: 18px; border-radius: 8px; text-align: center;
+  background: var(--nacht); color: var(--papier); position: relative; overflow: hidden;
+}
+.geloest-box h3 { color: #f3dfaa; font-size: 26px; }
+.geloest-box p { margin: 8px 0 0; }
+.siegel {
+  width: 74px; height: 74px; margin: 6px auto 10px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #c95a45, var(--rost) 60%, #6e2219);
+  display: grid; place-items: center; color: #fbe6d8;
+  font-family: var(--font-display); font-size: 13px; line-height: 1.05; text-align: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,.5);
+}
+.beweis { font-family: var(--font-hand); font-size: 24px; color: #f3dfaa; }
+.weiter { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.knopf.leise.hell { color: #f3dfaa; border-color: #c9b48a; }
+
+/* Tablet: mehr Platz, Bild und Text nebeneinander */
+@media (min-width: 760px) {
+  body { font-size: 19px; }
+  .buch { max-width: 1180px; }
+  .einband img { max-height: 440px; }
+  .einband .titel { padding: 80px 36px 26px; }
+  .einband h1 { font-size: 52px; }
+  .einband p { font-size: 22px; }
+  .status { padding: 22px 36px 6px; }
+  .woche { padding: 22px 36px 4px; }
+  .woche h2 { font-size: 26px; }
+  .tueren { gap: 14px; }
+  .tuer .nr { font-size: 44px; }
+  .seitenkopf { padding: 16px 28px; }
+  .layout { display: grid; grid-template-columns: 1.15fr 1fr; gap: 32px; padding: 0 28px; align-items: start; }
+  .bildspalte { position: sticky; top: 20px; }
+  .bildrahmen { margin: 0; padding: 10px; }
+  .text { padding: 0; }
+  .text h2 { font-size: 38px; }
+  .karte, .geloest-box { margin: 20px 0 0; }
+  .notizbuch { margin: 24px auto; max-width: 760px; }
+  body .leiste { max-width: 1180px; }
+}
+@media (min-width: 760px) and (orientation: portrait) {
+  .layout { grid-template-columns: 1fr; }
+  .bildspalte { position: static; }
+}
+
+/* Notizbuch */
+.notizbuch {
+  margin: 16px 12px; padding: 18px 18px 24px 40px; border-radius: 4px;
+  background:
+    linear-gradient(90deg, transparent 28px, rgba(168,57,42,.35) 28px, rgba(168,57,42,.35) 30px, transparent 30px),
+    repeating-linear-gradient(#fffaf0 0 31px, #d9e2ec 31px 32px);
+  box-shadow: 0 6px 18px rgba(45,35,24,.25);
+  font-family: var(--font-hand); font-size: 22px; line-height: 32px;
+}
+.notizbuch h2 { font-family: var(--font-hand); font-weight: 700; font-size: 30px; line-height: 32px; }
+.notizbuch h3 { font-family: var(--font-hand); font-weight: 700; font-size: 25px; line-height: 32px; margin-top: 32px; }
+.notizbuch ul { margin: 0; padding: 0; list-style: none; }
+.notizbuch li { line-height: 32px; }
+.notizbuch .leise { color: #8f8574; }
+.verdaechtig { display: grid; gap: 0; }
+.person { line-height: 32px; }
+.person b { font-weight: 700; }
+.chip {
+  display: inline-block; font-family: var(--font-text); font-size: 12px; line-height: 1.4;
+  padding: 1px 8px; border-radius: 999px; vertical-align: 3px; margin-left: 6px;
+}
+.chip.v { background: #f3e1b5; color: #6b4b0f; }
+.chip.e { background: #d8e7d6; color: #2b5236; }
+.chip.u { background: #f2cfc6; color: #7a2418; }
+
+/* Leiste unten */
+.leiste {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 0;
+  width: 100%; max-width: 600px; display: grid; grid-template-columns: 1fr 1fr;
+  background: var(--nacht); border-top: 2px solid var(--gold);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.leiste button {
+  background: none; border: 0; color: #e7dcc4; padding: 14px 8px;
+  font-family: var(--font-display); font-size: 19px;
+}
+.leiste button[aria-current="page"] { color: #f3dfaa; text-decoration: underline; text-underline-offset: 6px; }
+
+/* Eltern */
+.eltern { padding: 26px 20px 10px; text-align: center; font-size: 14px; color: var(--tinte-hell); }
+.eltern details { text-align: left; margin-top: 8px; }
+.eltern summary { cursor: pointer; text-align: center; }
+.eltern .panel { display: grid; gap: 10px; margin-top: 12px; padding: 14px; border: 1px dashed var(--tinte-hell); border-radius: 8px; }
+.eltern input[type=password] { padding: 8px 10px; border-radius: 6px; border: 1.5px solid var(--tinte-hell); width: 140px; }
+.versteckt { display: none !important; }
+.eltern .fs-box { border: 0; padding: 0; margin: 6px 0 0; display: grid; gap: 8px; }
+.eltern .fs-box h2 { font-size: 22px; }
+.eltern .fs-box p { margin: 0; }
+.eltern .small { font-size: 15px; }
+.eltern .muted { color: var(--tinte-hell); }
+</style>
+</head>
+<body>
+<div class="buch">
+  <main id="ansicht" aria-live="polite"></main>
+  <nav class="leiste" aria-label="Hauptnavigation">
+    <button id="nav-kalender" type="button">Kalender</button>
+    <button id="nav-notizbuch" type="button">Notizbuch</button>
+  </nav>
+</div>
+
+<script src="familie-sync.js"></script>
+<script>
+/* ===== Einstellungen für Mama und Papa ===== */
+const ELTERN_PIN = "2109";
+const JAHR = 2026;
+
+const WOCHEN = [
+  { nr: 1, titel: "Heute", zeit: "Der Diebstahl", farbe: "var(--w1)" },
+  { nr: 2, titel: "Samt und Seide", zeit: "1650 bis 1900", farbe: "var(--w2)" },
+  { nr: 3, titel: "Burg und Mittelalter", zeit: "ab 1186", farbe: "var(--w3)" },
+  { nr: 4, titel: "Römer und Finale", zeit: "ab 69 n. Chr.", farbe: "var(--w4)" },
+  { nr: 5, titel: "Die echte Truhe", zeit: "Weihnachten", farbe: "var(--w1)", bonus: true }
+];
+const BILDER = { 1: "bilder/tuer01.jpg", 2: "bilder/tuer02.jpg", 3: "bilder/tuer03.jpg", 4: "bilder/tuer04.jpg" };
+
+/* Typen: zahl, text, wahl, paar, code */
+const TUEREN = [
+  { n: 1, titel: "Der leere Haken", ort: "Rathaus (Stadtschloss)",
+    text: `Es ist der Abend des 1. Dezember, und in Krefeld schneit es zum ersten Mal in diesem Winter. Du sitzt gerade beim Abendessen, als das Telefon klingelt. Am Apparat ist der Oberbürgermeister persönlich! „Ich brauche deine Hilfe“, sagt er. „Im Rathaus ist etwas Unglaubliches passiert. Kannst du sofort kommen?“
+
+Zehn Minuten später stehst du mit Mütze, Rucksack und Lupe vor dem Rathaus. Die hellen Säulen glitzern im Licht der Lichterketten. An der Tür wartet Dr. Elsa Weber, die Leiterin der Weihnachtsausstellung. Sie ist ganz blass. „Der Seidenschlüssel ist verschwunden“, flüstert sie. „Ein alter Messingschlüssel mit rotem Seidenband. Er gehörte einmal den Seidenbaronen, die Krefeld reich gemacht haben. Heute Mittag hing er noch hier!“
+
+Sie zeigt auf das Schlüsselbrett hinter dem Fenster. Zwei Schlüssel hängen dort, aber der dritte Haken ist leer. Daneben klebt ein Zettel. In feiner, altmodischer Schrift steht darauf: „Wer Krefeld kennt, findet mich.“
+
+Da hörst du ein Kratzen. Auf dem verschneiten Fensterbrett landet eine schwarze Krähe mit einem roten Schal. Neben ihren Krallen liegt ein kleines rotes Seidenband im Schnee. Die Krähe legt den Kopf schief und mustert dich. „Krah! Ich bin Konrad“, krächzt sie. „Ich wohne auf dem Rathausdach und habe alles gesehen. Aber verraten tu ich es nur in Rätseln. Bist du schlau genug?“
+
+Du ziehst dein Notizbuch heraus. Der Fall beginnt.`,
+    raetsel: `Das Rathaus war früher das Wohnhaus der reichen Familie von der Leyen. Gebaut wurde es ab 1791. Wie viele Jahre ist der Baubeginn im Jahr 2026 her?`,
+    typ: "zahl", loesung: [235], tipp: `Rechne 2026 minus 1791. Krah!`,
+    beweis: "Der Zettel des Diebes", danach: `Konrad nickt anerkennend. Den Zettel des Diebes steckst du in dein Notizbuch.` },
+  { n: 2, titel: "Der Kaiser im Gästezimmer", ort: "Rathaus, altes Gästezimmer",
+    text: `Konrad flattert durch ein offenes Fenster ins Rathaus, und du folgst ihm die breite Treppe hinauf. Oben öffnet er mit dem Schnabel eine schwere Holztür. Dahinter liegt ein Zimmer, das aussieht, als wäre seit 200 Jahren niemand mehr hier gewesen. Kerzen flackern in goldenen Leuchtern, die Wände haben dunkle Tapeten mit feinen Mustern, und im Kamin glimmt noch ein wenig Glut.
+
+„Das Rathaus war nicht immer ein Rathaus“, erklärt Dr. Weber, die dir nachgekommen ist. „Die reiche Familie von der Leyen hat es als Wohnhaus bauen lassen. Die Leute nannten es damals einfach ‚das Schloss‘. Aber die Familie fand es ungemütlich und hat kaum darin gewohnt.“
+
+Auf einem Holzpult liegt ein dickes, aufgeschlagenes Gästebuch. Die Seiten sind gelb, die Schrift ist verschnörkelt. Konrad hüpft auf die Stuhllehne und klopft mit dem Schnabel auf eine Seite. „Krah! Ein Kaiser schlief hier!“
+
+Du schaust genauer hin. Im Kerzenlicht fällt ein seltsamer Schatten an die Wand: ein großer Hut mit zwei Spitzen. Im Jahr 1804 kam ein berühmter Herrscher nach Krefeld. Er war Kaiser der Franzosen, denn damals gehörte Krefeld zu Frankreich. Und er übernachtete genau in diesem Haus.
+
+Zwischen den Seiten des Gästebuchs steckt noch etwas: ein roter Seidenfaden. Hat der Dieb hier etwa geblättert?`,
+    raetsel: `Wer übernachtete 1804 im Krefelder Stadtschloss?`,
+    typ: "wahl", optionen: ["Karl der Große", "Napoleon", "Kaiser Wilhelm"], loesung: ["Napoleon"],
+    tipp: `Schau dir den Schatten an der Wand an. Wer trug so einen Hut?`,
+    beweis: "Roter Seidenfaden aus dem Gästebuch", danach: `Richtig, Napoleon! Den roten Seidenfaden aus dem Gästebuch steckst du vorsichtig in dein Beweistütchen.` },
+  { n: 3, titel: "Jupps Kasse", ort: "Weihnachtsmarkt an der Dionysiuskirche",
+    text: `Am nächsten Abend gehst du mit Konrad auf den Weihnachtsmarkt an der Dionysiuskirche. Der hohe Kirchturm ragt in den dunklen Himmel, und zwischen den Holzbuden duftet es nach Glühwein, gebrannten Mandeln und Reibekuchen. Überall leuchten Lichterketten, und der Schnee knirscht unter deinen Stiefeln.
+
+Dr. Weber hat dir verraten, dass es eine Zeugin gibt. Eine Frau hat in der Nacht des Diebstahls einen Mann gesehen, der um das Rathaus geschlichen ist. Er trug eine Schürze und eine Wollmütze und roch nach Bratfett. Das passt genau auf Jupp vom Reibekuchenstand!
+
+Jupp ist ein rundlicher Mann mit roten Wangen und einem buschigen Schnurrbart. Als du ihn nach der Nacht fragst, lacht er so laut, dass sich die Leute umdrehen. „Ich soll ein Dieb sein? Dafür hatte ich gar keine Zeit! Ich habe den ganzen Abend Reibekuchen gebraten, einen nach dem anderen.“ Er stellt eine alte Geldkassette auf den Tresen und klappt sie auf. „Hier, die Einnahmen von dem Abend. Rechne nach, junger Detektiv, dann siehst du es selbst!“
+
+Konrad sitzt auf dem Dach der Bude und beäugt die Kassette misstrauisch. Ob Jupp die Wahrheit sagt? Eins ist jedenfalls komisch: Warum war er nachts überhaupt am Rathaus?`,
+    raetsel: `3 Reibekuchen kosten 4,50 €. Jupp hat am Abend 186 € eingenommen. Wie viele Reibekuchen hat er verkauft?`,
+    typ: "zahl", loesung: [124], tipp: `Ein Reibekuchen kostet 1,50 €. Wie oft passt 1,50 € in 186 €?`,
+    beweis: "Jupps Kassenzettel", danach: `124 Reibekuchen! Merk dir die Zahl gut, du brauchst sie an Tür 6 wieder.` },
+  { n: 4, titel: "Das Schlüsselbrett", ort: "Rathaus, Hausmeisterraum im Keller",
+    text: `Die Spur führt dich zurück ins Rathaus, diesmal ganz nach unten in den Keller. Es riecht nach Staub, Farbe und alten Kartons. In einem kleinen Raum voller Regale, Werkzeug und Farbeimer arbeitet Bruno Hagedorn, der Hausmeister. Er ist groß, hat graue, wirre Haare und trägt einen grauen Kittel. An seinem Gürtel klimpert ein riesiger Schlüsselbund.
+
+„Ich habe Schlüssel zu jeder Tür in diesem Haus“, brummt er. „Aber den Seidenschlüssel habe ich nicht angerührt, ehrlich!“ Er zeigt auf ein Schlüsselbrett an der Ziegelwand. Drei Haken hat es: für den Keller, den Dachboden und die Ausstellung. Zwei Schlüssel hängen dort, ein Haken ist leer. „Das kann doch nicht sein“, murmelt er und kratzt sich am Kopf. „Gestern Abend war der noch da. Ich war die ganze Nacht hier unten und habe die Lichterkette für den Weihnachtsbaum repariert. Die ist nämlich kaputtgegangen.“
+
+Auf der Werkbank liegt tatsächlich ein großes Knäuel Lichterkette, daneben Zangen und Schraubenzieher. Du hältst die Lupe ans Schlüsselbrett. Welcher Schlüssel fehlt hier eigentlich?
+
+Konrad sitzt oben auf einem Regal. Er sagt kein Wort, aber er starrt die ganze Zeit in eine dunkle Ecke des Raumes. Ein guter Detektiv schaut sich überall um …`,
+    raetsel: `Drei Haken: Keller, Dachboden, Ausstellung. Der Kellerschlüssel hängt nicht am Rand. Der Dachbodenschlüssel hängt ganz rechts. Welcher Schlüssel fehlt am linken Haken?`,
+    typ: "wahl", optionen: ["Keller", "Dachboden", "Ausstellung"], loesung: ["Ausstellung"],
+    tipp: `Wenn der Kellerschlüssel nicht am Rand hängt, bleibt für ihn nur ein einziger Platz.`,
+    beweis: "Skizze vom Schlüsselbrett", danach: `Genau, der Ausstellungsschlüssel fehlt. Konrad flüstert: „Hast du wirklich alles im Bild gesehen?“` },
+  { n: 5, titel: "Die 13 übers Meer", ort: "Philadelphiastraße",
+    text: `Zu Hause schaust du dir den Zettel des Diebes noch einmal mit der Lupe an. Da entdeckst du etwas, das dir vorher nicht aufgefallen ist. Auf der Rückseite steht in winziger Schrift: „Folge den 13, die übers Meer fuhren.“
+
+„Krah! Dreizehn!“, krächzt Konrad und fliegt los. Du folgst ihm durch die verschneiten Straßen bis zur Philadelphiastraße. Philadelphia? Das ist doch eine Stadt in Amerika! Was hat die mit Krefeld zu tun?
+
+An der Ecke bleibt ein älterer Herr stehen und sieht, wie du das Straßenschild betrachtest. „Die Straße erinnert an eine besondere Geschichte“, erzählt er. „Vor über 340 Jahren, im Jahr 1683, packten 13 Krefelder Familien ihre Sachen. Viele von ihnen waren Weber. Sie hofften in Amerika auf ein freieres Leben, in dem sie ihren Glauben ohne Ärger leben konnten. Also stiegen sie auf ein Segelschiff namens Concord und fuhren über den Atlantik. Drüben gründeten sie einen neuen Ort: Germantown. Heute ist das ein Teil der großen Stadt Philadelphia.“
+
+Du stellst dir vor, wie das gewesen sein muss: wochenlang auf einem schaukelnden Holzschiff, nur Wasser ringsherum, und niemand weiß, was einen am anderen Ufer erwartet. Konrad schüttelt sich. Er mag kein Wasser.
+
+Warum weist der Dieb ausgerechnet auf diese Geschichte hin? Du schreibst dir die Zahl 1683 ganz groß ins Notizbuch.`,
+    raetsel: `Die Überfahrt dauerte 75 Tage. Wie viele ganze Wochen und wie viele Tage sind das?`,
+    typ: "paar", felder: ["Wochen", "Tage"], loesung: [10, 5], tipp: `Eine Woche hat 7 Tage. 7 mal 10 ist 70.`,
+    beweis: "Bild der Concord", danach: `10 Wochen und 5 Tage auf hoher See! Die Zahl 1683 solltest du dir merken.` },
+  { n: 6, titel: "Der Stiefel", ort: "Zuhause, Nikolausabend",
+    text: `Heute ist Nikolaus! Am Morgen steht vor eurer Haustür ein Stiefel. Darin liegen Mandarinen, Nüsse und ein Schokoladen-Nikolaus. Aber ganz unten steckt noch etwas: ein zusammengerollter Zettel mit einem roten Siegel aus Wachs.
+
+Konrad sitzt auf dem Schuhregal und tut so, als hätte er nichts damit zu tun. Aber du siehst genau, wie er dir zuzwinkert.
+
+Vorsichtig brichst du das Siegel auf. In derselben feinen Schrift wie auf dem Zettel im Rathaus steht dort: „Bravo, Detektiv! Du bist auf der richtigen Spur. Irgendwo wartet ein Schloss mit vier Ziffern. Die erste Ziffer steckt in Jupps Kasse.“
+
+Ein Schloss mit vier Ziffern? Davon hat noch niemand etwas gesagt! Wozu braucht man einen Seidenschlüssel, wenn es auch noch ein Zahlenschloss gibt? Du blätterst in deinem Notizbuch zurück bis zu dem Abend auf dem Weihnachtsmarkt. Da steht die Zahl, die du bei Jupp ausgerechnet hast.
+
+Bevor du weiterrätselst, hat Konrad noch eine Aufgabe für dich. Jeder gute Detektiv muss auch Menschen befragen können, meint er. Und wer wüsste über Nikolaus besser Bescheid als Mama und Papa?`,
+    befragung: `Frag Mama oder Papa: Was war ihr schönstes Nikolausgeschenk, als sie Kinder waren? Schreib es in dein echtes Notizbuch.`,
+    raetsel: `Teile die Zahl der Reibekuchen aus Tür 3 durch 4 und zieh dann 30 ab.`,
+    typ: "zahl", loesung: [1], fast: { 124: "Das ist die Zahl aus Tür 3. Jetzt noch durch 4 teilen!", 31: "Fast! Jetzt noch 30 abziehen." },
+    tipp: `124 geteilt durch 4 ist 31.`, ziffer: 1,
+    beweis: "Erste Ziffer: 1", danach: `Die erste Ziffer für das Zahlenschloss ist eine 1. Aber für welches Schloss eigentlich?` },
+
+  { n: 7, titel: "Die Flucht der Seidenweber", ort: "Von-der-Leyen-Platz",
+    text: `Eine Woche ist vergangen, seit der Seidenschlüssel verschwunden ist. Heute stehst du auf dem Von-der-Leyen-Platz vor dem Rathaus und überlegst, wo du weitersuchen sollst. Da spricht dich eine freundliche ältere Dame an. Sie trägt einen Hut mit Feder, einen langen Mantel und hält einen roten Regenschirm in der Hand.
+
+„Du bist doch der junge Detektiv, von dem alle reden!“, sagt sie und lächelt. „Ich bin Lotta Brinkmann. Ich mache seit vielen Jahren Stadtführungen und kenne jede Geschichte in Krefeld. Wenn du willst, helfe ich dir.“
+
+Sie zeigt auf das Rathaus. „Weißt du, wem Krefeld seinen Reichtum verdankt? Einer Familie, die fliehen musste. Die von der Leyens lebten früher in Radevormwald, einer kleinen Stadt im Bergischen Land. Sie gehörten zu den Mennoniten, und wegen ihres Glaubens wurden sie dort im Jahr 1656 vertrieben. In Krefeld fanden sie Zuflucht. Hier durften sie bleiben, und hier bauten sie ihr Geschäft auf: mit Seide.“
+
+Lotta drückt dir einen kleinen Zettel in die Hand. „Den habe ich heute Morgen an der Rathaustür gefunden“, sagt sie. „Vielleicht ist er vom Dieb?“ Auf dem Zettel steht nur ein seltsames Wort aus fünf Buchstaben.
+
+Konrad sitzt auf einer Laterne und beäugt Lottas roten Regenschirm. Sehr genau.`,
+    raetsel: `Geheimcode: Jeder Buchstabe ist um eins verschoben (aus A wird B). Was heißt TFJEF?`,
+    typ: "text", loesung: ["SEIDE"], tipp: `Geh bei jedem Buchstaben einen Schritt im Alphabet zurück: Aus T wird S.`,
+    beweis: "Geheimbotschaft: SEIDE", danach: `SEIDE! Und ist dir Lottas Regenschirm aufgefallen?` },
+  { n: 8, titel: "Die halbe Stadt", ort: "Eine alte Weberstube",
+    text: `Lotta nimmt dich mit in eine alte Weberstube. Hier sieht alles so aus wie vor 250 Jahren. In der Mitte steht ein riesiger Webstuhl aus dunklem Holz, fast so groß wie ein ganzes Zimmer. An der Wand hängt ein altes Bild: Männer und Frauen sitzen an solchen Webstühlen, und Kinder wickeln Garn auf Spulen.
+
+„Stell dir vor, wie laut es damals in Krefeld war“, sagt Lotta. „In vielen Häusern klapperte von morgens bis abends ein Webstuhl. Klack, klack, klack. Die Weber webten feine Stoffe aus Seide und später auch Samt. Deshalb nennt man Krefeld bis heute die Samt- und Seidenstadt.“
+
+Die meisten Weber arbeiteten nicht für sich selbst, sondern für die Seidenbarone von der Leyen. Die Familie kaufte die Seide ein, ließ sie färben und verweben und verkaufte die fertigen Stoffe in ganz Europa. So wurde sie unglaublich reich.
+
+Du setzt dich vorsichtig an den Webstuhl und ziehst an einem der Fäden. Er ist dünn und glatt und glänzt im Licht. Plötzlich fällt dir auf: Er hat genau dieselbe rote Farbe wie das Band, das am Rathaus im Schnee lag.
+
+„Ein schöner Faden, nicht wahr?“, sagt Lotta schnell und schaut auf die Uhr. „Oh, ich muss los. Meine nächste Führung wartet!“`,
+    raetsel: `1763 hatte Krefeld 6082 Einwohner. Die Hälfte arbeitete für die von der Leyens. Wie viele Menschen waren das?`,
+    typ: "zahl", loesung: [3041], tipp: `Halbiere erst 6000, dann 82, und zähl beides zusammen.`,
+    beweis: "Das Weberbild", danach: `3041 Menschen, die halbe Stadt arbeitete für eine einzige Familie!` },
+  { n: 9, titel: "Der Seidenfaden", ort: "Mennonitenkirche",
+    text: `Am nächsten Tag führt dich Konrad zu einer Kirche in der Innenstadt. Drinnen ist es still und hell. Es ist die Kirche der Mennoniten.
+
+„Krah! Hier haben die von der Leyens gebetet“, krächzt Konrad. Die Mennoniten waren eine Glaubensgemeinschaft, die vieles einfach und bescheiden halten wollte. Gewalt lehnten sie ab, und sie hielten fest zusammen. Trotzdem, oder gerade deshalb, wurden sie in vielen Gegenden verfolgt. In Krefeld aber durften sie ihren Glauben leben.
+
+Als die von der Leyens reich geworden waren, vergaßen sie ihre Gemeinde nicht. Sie gründeten eine Stiftung, die anderen Mennoniten half. Und im Jahr 1768 schenkten sie ihrer Kirche Geld für eine Orgel. Wenn du ganz still bist, kannst du dir vorstellen, wie sie zum ersten Mal erklang.
+
+Du gehst langsam durch die Reihen und schaust unter jede Bank. Zwischen zwei Bänken, ganz hinten, glänzt etwas Rotes. Du hebst es mit spitzen Fingern auf: schon wieder ein roter Seidenfaden! Genau wie im Gästebuch und wie das Band auf dem Fensterbrett im Rathaus.
+
+Jemand war hier, kurz vor dir. Jemand, der Krefelds Geschichte sehr gut kennt.`,
+    raetsel: `Wie viele Jahre liegen zwischen der Flucht 1656 und der Orgel 1768?`,
+    typ: "zahl", loesung: [112], tipp: `Rechne 1768 minus 1656.`,
+    beweis: "Zweiter Seidenfaden", danach: `112 Jahre. Der zweite Seidenfaden wandert zum ersten in dein Beweistütchen.` },
+  { n: 10, titel: "Konrads Kokon", ort: "Zuhause",
+    text: `Heute ist ein ruhiger Tag. Du sitzt am Schreibtisch und ordnest deine Beweisstücke: den Zettel des Diebes, die Seidenfäden, die Skizze vom Schlüsselbrett. Da klopft es ans Fenster. Konrad! Er hat etwas im Schnabel.
+
+Als du das Fenster öffnest, legt er dir etwas Kleines, Weißes auf den Tisch. Es ist so groß wie eine Erdnuss, ganz leicht und fühlt sich an wie Watte, nur fester. „Krah! Ohne das hier gäbe es keinen Seidenschlüssel“, krächzt er und plustert sich stolz auf. „Und kein Krefeld, wie du es kennst!“
+
+Du schaust dir das kleine Ding mit der Lupe an. Es besteht aus unzähligen hauchdünnen Fäden, die eng umeinandergewickelt sind. Darin hat einmal ein kleines Tier gesteckt, das sich selbst eingesponnen hat, um sich in einen Schmetterling zu verwandeln.
+
+Seide ist einer der wertvollsten Stoffe der Welt. Sie glänzt, ist weich und trotzdem sehr fest. Früher war sie so kostbar, dass sich nur reiche Leute Kleider daraus leisten konnten. Genau deshalb konnten die Seidenbarone in Krefeld so reich werden.
+
+Aber woraus wird Seide eigentlich gemacht? Konrad legt den Kopf schief und wartet.`,
+    raetsel: `Woraus wird Seide gemacht?`,
+    typ: "wahl", optionen: ["Aus Baumwolle", "Aus dem Kokon der Seidenraupe", "Aus Schafwolle"], loesung: ["Aus dem Kokon der Seidenraupe"],
+    tipp: `Konrad hat es dir gerade vor die Füße gelegt.`,
+    beweis: "Ein Kokon", danach: `Die Seidenraupe spinnt sich in einen einzigen, sehr langen Faden ein. Daraus wird Seide.` },
+  { n: 11, titel: "Spuren im Schnee", ort: "Haus Lange und Haus Esters",
+    text: `Am Wochenende stapfst du mit Konrad zu zwei besonderen Häusern. Sie stehen nebeneinander in einem großen Garten und sehen ganz anders aus als die alten Häuser in der Innenstadt: klare Formen, flache Dächer, große Fenster, rote Backsteine.
+
+Auf einem Schild am Eingang liest du, dass sich zwei Seidenfabrikanten diese Häuser bauen ließen: Hermann Lange und Josef Esters. Gemeinsam haben sie eine große Seidenweberei gegründet. Entworfen hat die Häuser ein berühmter Architekt, vor fast 100 Jahren. Damals waren solche Häuser ganz neu und modern. Heute sind beide Kunstmuseen.
+
+Im Garten liegt frischer Schnee. Und mitten darin: Fußspuren! Sie führen vom Tor über den Rasen bis zur Hecke und wieder zurück. Du beugst dich mit der Lupe darüber. Es sind kleine Schuhe mit Absatz. Und neben jedem zweiten Schritt ist ein kleines, rundes Loch im Schnee, als hätte sich jemand beim Gehen auf einen Stock gestützt. Oder auf die Spitze eines Regenschirms.
+
+Konrad hüpft aufgeregt um die Löcher herum. „Krah! Krah!“
+
+An der Hecke steckt ein Zettel mit einer Rechenaufgabe. Darunter ist ein kleiner Teppich gezeichnet.`,
+    raetsel: `Ein Zimmer ist 6 m lang und 4 m breit. Wie viele Quadratmeter Seidenteppich passen hinein?`,
+    typ: "zahl", loesung: [24], tipp: `Fläche ist Länge mal Breite.`,
+    beweis: "Abdruck einer Schirmspitze", danach: `24 Quadratmeter. Und die Schirmspuren notierst du dir ganz genau.` },
+  { n: 12, titel: "18 Grad", ort: "Deutsches Textilmuseum, Linn",
+    text: `Die Spur führt in den historischen Stadtteil Linn, mit seinen kleinen Gassen und dem Kopfsteinpflaster. Am Andreasmarkt steht das Deutsche Textilmuseum. Hier werden Stoffe aus der ganzen Welt aufbewahrt: Kleider, Teppiche, Tücher, manche davon Hunderte Jahre alt. Über 30.000 Stücke besitzt das Museum, und gesammelt wird schon seit 1881.
+
+Als du hineingehst, ziehst du die Schultern hoch. Brrr, ist das kühl hier! „Das muss so sein“, erklärt dir die Frau an der Kasse. „In den Ausstellungsräumen sind es nur 18 Grad. Und es ist auch ziemlich dunkel. Wärme und helles Licht würden die alten Stoffe kaputtmachen. Die Farben würden verblassen und die Fäden brüchig werden.“
+
+Du schaust dir ein altes Seidenkleid in einer Glasvitrine an. Es schimmert in allen Farben, obwohl es schon so alt ist.
+
+„Ach übrigens“, sagt die Frau an der Kasse, „Frau Brinkmann war heute Morgen auch schon hier. Die Stadtführerin. Sie hat sich lange die alten Seidenbänder angesehen.“
+
+Konrad plustert sich auf, bis er doppelt so dick aussieht. Das macht er immer, wenn ihm etwas komisch vorkommt.
+
+Draußen ist es bitterkalt. Du schaust auf das Thermometer an der Tür.`,
+    raetsel: `Draußen sind 3 Grad, drinnen 18 Grad. Wie groß ist der Unterschied? Die Quersumme dieser Zahl ist die zweite Ziffer.`,
+    typ: "zahl", loesung: [6], fast: { 15: "Richtig gerechnet, 15 Grad! Und was ist die Quersumme von 15?" },
+    tipp: `Erst 18 minus 3. Dann die Ziffern der Zahl zusammenzählen.`, ziffer: 6,
+    beweis: "Zweite Ziffer: 6", danach: `Die zweite Ziffer ist eine 6. Das Schloss nimmt Gestalt an.` },
+
+  { n: 13, titel: "Die Wasserburg", ort: "Burg Linn",
+    text: `Gleich um die Ecke vom Textilmuseum liegt die Burg Linn. Jetzt, im Winter, sieht sie aus wie aus einem Märchen. Ein breiter Wassergraben umgibt die dicken Mauern, an den Rändern ist er schon ein bisschen zugefroren. Über eine Brücke kommt man zum Tor.
+
+Konrad fliegt voraus, hoch über die Zinnen. Du folgst ihm zu Fuß und staunst. Die Burg ist eine der größten Wasserburgen am ganzen Niederrhein. Wer sie früher angreifen wollte, musste erst über das Wasser, dann über die hohen Mauern und dann noch durch das schwere Tor. Fast unmöglich!
+
+Gebaut wurde die Burg vor über 800 Jahren. In einer alten Urkunde aus dem Jahr 1186 wird sie zum ersten Mal erwähnt. Damals gab es keine Autos, keinen Strom und kein Telefon. Die Menschen schrieben mit Federkielen auf Pergament, und nur wenige konnten überhaupt lesen.
+
+„Krah! Das Weberbuch!“, ruft Konrad von oben. Was meint er damit? Bisher hat niemand von einem Weberbuch gesprochen.
+
+Bevor du fragen kannst, ist er schon im Turm verschwunden. Du schreibst dir die Jahreszahl ins Notizbuch und fängst an zu rechnen.`,
+    raetsel: `Wie viele Jahre ist die erste Erwähnung im Jahr 2026 her?`,
+    typ: "zahl", loesung: [840], tipp: `Rechne 2026 minus 1186.`,
+    beweis: "Skizze der Burg", danach: `840 Jahre! Damals trugen die Menschen hier noch Rüstungen.` },
+  { n: 14, titel: "Spiegelschrift im Turm", ort: "Burgturm",
+    text: `Die Treppe im Turm ist eng und steil und windet sich wie ein Schneckenhaus nach oben. Die Stufen sind ausgetreten, so viele Füße sind in all den Jahrhunderten hier hinaufgestiegen. Durch schmale Fensterschlitze pfeift der kalte Wind. Früher haben Wächter hier hinausgeschaut, ob sich Feinde nähern.
+
+Oben angekommen, bist du ganz außer Atem. Aber der Blick ist toll! Du siehst die Dächer von Linn, den Wassergraben, die weißen Felder und in der Ferne die Türme der Stadt.
+
+Konrad sitzt auf einem Mauervorsprung und pickt an etwas herum. Zwischen zwei Steinen klemmt ein zusammengefalteter Zettel. Vorsichtig ziehst du ihn heraus. Er ist ein bisschen feucht, aber man kann alles lesen. Na ja, fast: Die Buchstaben stehen alle in verkehrter Reihenfolge!
+
+Wer hat den Zettel hier versteckt? Es muss jemand gewesen sein, der wusste, dass du hier hochkommst. Jemand, der dir immer einen Schritt voraus ist.
+
+Du hältst den Zettel umgedreht vor das Fenster, aber das hilft nicht. Dann versuchst du es von hinten nach vorne. Langsam ergibt sich ein Wort. Ein Ort ganz in der Nähe.`,
+    raetsel: `Lies rückwärts: SSOLHCSDGAJ`,
+    typ: "text", loesung: ["JAGDSCHLOSS"], tipp: `Fang beim letzten Buchstaben an: J …`,
+    beweis: "Zettel aus dem Turm", danach: `JAGDSCHLOSS! Es steht gleich neben der Burg.` },
+  { n: 15, titel: "Die Jagdgesellschaft", ort: "Jagdschloss",
+    text: `Das Jagdschloss steht direkt neben der Burg, in der Vorburg. Es ist kleiner als die Burg, aber viel eleganter, mit hohen Fenstern und hübschen Verzierungen. Gebaut wurde es im 18. Jahrhundert für einen ganz besonderen Gast: Kurfürst Clemens August.
+
+Ein Kurfürst gehörte zu den mächtigsten Männern im ganzen Land. Und Clemens August liebte die Jagd. Wenn er nach Linn kam, war hier richtig was los: Pferde wieherten, Hunde bellten, Jagdhörner schallten über die Felder, und in der Küche wurde für ein großes Festessen gekocht.
+
+Drinnen siehst du alte Möbel und Gemälde. An einer Wand hängt ein Bild, das dich sofort neugierig macht: Der Kurfürst sitzt hoch zu Ross, umgeben von seinen Begleitern auf ihren Pferden. Zwischen den Pferden springen Jagdhunde mit hängenden Ohren herum.
+
+Konrad starrt auf das Bild und fängt an zu zählen. „Ein Bein, zwei Beine, drei Beine …“ Dann gibt er auf. „Krah! Zu viele Beine! Mach du das.“
+
+Aber vorher hat er noch eine Frage, und die ist eher etwas für Papa. Was genau ist eigentlich ein Kurfürst? Ein Fürst, der zur Kur fährt? Wohl kaum …`,
+    befragung: `Frag Papa: Was ist eigentlich ein Kurfürst?`,
+    raetsel: `Der Kurfürst reitet mit 11 Begleitern aus, jeder auf einem Pferd. Dazu laufen 10 Jagdhunde mit. Wie viele Beine sind das zusammen?`,
+    typ: "zahl", loesung: [112], fast: { 72: "Reiter und Pferde hast du. Jetzt fehlen noch die Hunde!" },
+    tipp: `12 Reiter mit je 2 Beinen, 12 Pferde mit je 4 Beinen, und dann die Hunde.`,
+    beweis: "Ein Jagdhorn", danach: `112 Beine! Merk dir die Zahl für Tür 18.` },
+  { n: 16, titel: "Wer flunkert?", ort: "Andreasmarkt, Linn",
+    text: `Auf dem Andreasmarkt in Linn steht ein kleiner Weihnachtsbaum, und du setzt dich auf eine Bank daneben. Es wird Zeit, Ordnung in deinen Fall zu bringen. Du schlägst dein Notizbuch auf. Drei Verdächtige hast du: Jupp, Bruno Hagedorn und Lotta Brinkmann. Wer von ihnen war in der Nacht des Diebstahls im Rathaus?
+
+Zum Glück sind heute alle drei in Linn. Jupp verkauft auf dem kleinen Markt Reibekuchen, Bruno hilft beim Aufbau, und Lotta führt eine Gruppe durch die Gassen. Du befragst einen nach dem anderen.
+
+Jupp lacht: „Nach Feierabend habe ich Bruno noch ein paar Reibekuchen in den Keller gebracht. Der arme Kerl hatte ja die ganze Nacht mit dieser Lichterkette zu tun!“
+
+Bruno nickt: „Stimmt genau. Jupp kam so gegen elf vorbei, dann habe ich weitergebastelt, bis die Kette wieder leuchtete. Ich war die ganze Zeit im Keller, Jupp kann es bezeugen.“
+
+Lotta lächelt freundlich: „Ich? Ich war den ganzen Abend zuhause und habe Tee getrunken. Bei dem Wetter geht man doch nicht vor die Tür.“
+
+Du blätterst in deinem Notizbuch zurück, bis zu Tür 4 im Keller. Erinnerst du dich, was dort in der dunklen Ecke stand? Und wem gehört eigentlich ein roter Regenschirm?
+
+Konrad krächzt leise. Er weiß es längst.`,
+    raetsel: `Wer hat geflunkert?`,
+    typ: "wahl", optionen: ["Jupp", "Bruno Hagedorn", "Lotta Brinkmann"], loesung: ["Lotta Brinkmann"],
+    tipp: `Erinnerst du dich an das Bild von Tür 4? Wem gehört der rote Schirm?`,
+    beweis: "Lottas Regenschirm", danach: `Lotta war im Rathaus! Jupp und Bruno sind entlastet.` },
+  { n: 17, titel: "Am Rhein", ort: "Rheinufer in Uerdingen",
+    text: `Als du zu Lotta gehst, um sie zur Rede zu stellen, ist sie verschwunden. Ihre Gruppe steht ratlos herum. „Sie hat gesagt, sie muss dringend zum Rhein“, erzählt ein Mann.
+
+Also auf nach Uerdingen! Konrad fliegt voraus, über Felder und Dächer, bis vor dir der breite Fluss auftaucht. Der Rhein ist grau und schnell und viel größer, als du ihn in Erinnerung hattest. Lange Frachtschiffe schieben sich langsam vorbei, beladen mit bunten Containern.
+
+Am Ufer sitzt ein alter Angler auf einem Klappstuhl. „Eine Dame mit rotem Schirm? Nee, hab ich nicht gesehen“, brummt er. Dann zeigt er flussaufwärts. „Weißt du, was komisch ist? Ein Stück weiter kommen sich Krefeld und Düsseldorf ganz nah. Die beiden Städte berühren sich fast. Im Rhein fehlen nur ungefähr 700 Meter zwischen ihnen.“
+
+Du schaust aufs Wasser und versuchst dir vorzustellen, wie weit 700 Meter sind. Ob man das zu Fuß gehen könnte, wenn der Rhein zugefroren wäre? Lieber nicht.
+
+Da entdeckt Konrad etwas zwischen den Steinen am Ufer: einen nassen Lederhandschuh. Auf das Bündchen ist ein Buchstabe gestickt, ein großes L.`,
+    raetsel: `Wie viele Schritte sind 700 m, wenn ein Schritt 70 cm lang ist?`,
+    typ: "zahl", loesung: [1000], tipp: `700 m sind 70 000 cm.`,
+    beweis: "Lottas Handschuh", danach: `1000 Schritte! Den nassen Handschuh mit dem L steckst du in eine Beweistüte.` },
+  { n: 18, titel: "Die Seite aus dem Weberbuch", ort: "Burgkapelle",
+    text: `Mit dem Handschuh in der Tasche fährst du zurück nach Linn. Konrad will unbedingt noch einmal in die Burg, und diesmal fliegt er geradewegs zur kleinen Burgkapelle.
+
+In der Kapelle ist es still und kalt. Durch ein kleines Fenster fällt ein Streifen Licht auf den Steinboden. Konrad landet auf einer alten Holzbank und klopft mit dem Schnabel gegen ein loses Brett. Darunter liegt ein vergilbtes Blatt Papier.
+
+Es ist eine Seite aus einem sehr alten Buch. Die Schrift ist schnörkelig, und oben steht: „Aus dem Buch der Krefelder Seidenweber“. Darunter hat jemand eine Truhe gezeichnet, mit schweren Eisenbeschlägen und einem Schloss mit vier kleinen Rädchen. Daneben steht ein Satz, den du dreimal lesen musst: „Die Truhe öffnet, wer weiß, wo Krefeld begann.“
+
+Eine Truhe! Jetzt verstehst du endlich, wofür die Ziffern sind. Irgendwo wartet eine alte Truhe der Seidenweber, und du sammelst schon die ganze Zeit ihren Code!
+
+Zwei Ziffern hast du: die 1 aus Jupps Kasse und die 6 aus dem Textilmuseum. Die dritte versteckt sich in einer Rechnung, die du schon gelöst hast. Konrad scharrt ungeduldig mit den Krallen.`,
+    raetsel: `Teile die Zahl der Beine aus Tür 15 durch 14. Das ist die dritte Ziffer.`,
+    typ: "zahl", loesung: [8], tipp: `112 geteilt durch 14. Probier es mit 14 mal 8.`, ziffer: 8,
+    beweis: "Dritte Ziffer: 8", danach: `Die dritte Ziffer ist eine 8. Jetzt fehlt nur noch eine!` },
+
+  { n: 19, titel: "Wo Krefeld begann", ort: "Gellep, römisches Kastell Gelduba",
+    text: `„Wo hat Krefeld begonnen?“ Die Frage lässt dich nicht los. Am Rathaus? An der Burg? Konrad weiß es. Er führt dich nach Gellep, in den Osten der Stadt, nah am Rhein. Hier gibt es Felder, ein paar Häuser und den Hafen. Auf den ersten Blick nichts Besonderes.
+
+Aber unter deinen Füßen liegt ein Geheimnis. Vor fast 2000 Jahren stand genau hier ein Lager der Römer. Sie nannten den Ort Gelduba. Der Rhein war damals die Grenze des riesigen Römischen Reiches, und an seinem Ufer bauten die Römer Lager und Kastelle, um die Grenze zu bewachen. In Gelduba lebten Hunderte Soldaten, dazu Händler, Handwerker und ihre Familien. Es gab Bäder, Tempel und Werkstätten.
+
+Wir wissen davon auch, weil ein Römer darüber geschrieben hat: der Geschichtsschreiber Tacitus. Er erwähnt Gelduba zum ersten Mal im Jahr 69 nach Christus. Das ist eine der ältesten Nachrichten über einen Ort im heutigen Krefeld.
+
+Konrad scharrt mit den Krallen im gefrorenen Boden. Da blitzt etwas auf: eine kleine, grünliche Münze mit dem Kopf eines Mannes mit Lorbeerkranz. „Krah! Römisch!“
+
+Hier hat Krefeld begonnen. Aber wie lange ist das her?`,
+    raetsel: `Wie viele Jahre ist das im Jahr 2026 her?`,
+    typ: "zahl", loesung: [1957], tipp: `Rechne 2026 minus 69.`,
+    beweis: "Eine römische Münze", danach: `1957 Jahre! Hier hat Krefeld begonnen.` },
+  { n: 20, titel: "Die römische Zahl", ort: "Archäologisches Museum, Burg Linn",
+    text: `Die Münze bringst du ins Archäologische Museum an der Burg Linn. Dort werden die Schätze aufbewahrt, die man in Gellep ausgegraben hat. In den Vitrinen liegen Helme, Schwerter, Gürtelschnallen, Tonkrüge und Münzen, viele Hundert davon.
+
+Ein Museumsmitarbeiter erzählt dir eine aufregende Geschichte: Ende des Jahres 69 gab es hier eine große Schlacht. Die Bataver, ein germanischer Stamm, hatten sich gegen die Römer erhoben. Bei Gelduba kämpften sie gegeneinander, Tausende Soldaten auf beiden Seiten. Archäologen haben auf dem alten Schlachtfeld sogar die Skelette von über 300 Pferden gefunden.
+
+Du betrachtest einen rostigen Römerhelm und stellst dir vor, wer ihn wohl getragen hat. Da entdeckst du neben der Vitrine einen Zettel, der da bestimmt nicht hingehört. Darauf steht eine Zahl, aber eine römische: lauter Buchstaben statt Ziffern.
+
+Die Römer kannten unsere Ziffern nämlich noch nicht. Sie schrieben Zahlen mit Buchstaben: I für 1, V für 5, X für 10, L für 50, C für 100, D für 500 und M für 1000.
+
+Und die Handschrift auf dem Zettel? Die kennst du doch! Es ist dieselbe feine, altmodische Schrift wie auf dem allerersten Zettel im Rathaus.`,
+    raetsel: `Übersetze MDCCXCI. (M = 1000, D = 500, C = 100, X = 10, I = 1. Steht ein kleiner Wert vor einem größeren, wird er abgezogen.)`,
+    typ: "zahl", loesung: [1791], fast: { 1811: "Achtung bei XC: Das X steht vor dem C, also wird es abgezogen." },
+    tipp: `XC ist 100 minus 10, also 90.`,
+    beweis: "Zettel mit römischer Zahl", danach: `1791, das Baujahr des Rathauses! Die Spur führt zurück an den Anfang.` },
+  { n: 21, titel: "Das Fürstengrab", ort: "Archäologisches Museum",
+    text: `Im nächsten Raum ist es dämmrig. Hier zeigt das Museum die Gräber von Gellep. Viele Jahrhunderte lang haben die Menschen dort ihre Toten begraben, zuerst die Römer, später die Franken. Seit 1934 graben Archäologen in Gellep, Schicht für Schicht, mit Pinsel und kleiner Kelle. Rund 6400 Gräber haben sie inzwischen gefunden.
+
+Das berühmteste ist das Grab eines Fürsten. Archäologen haben es 1962 entdeckt, und das Besondere war: Niemand hatte es vorher geöffnet oder ausgeraubt. Alles lag noch genau so da, wie man es vor etwa 1500 Jahren hineingelegt hatte: Waffen, Schmuck, Gefäße und ein prächtiger Helm. Was für ein Fund!
+
+Du drückst die Nase an die Glasscheibe und stellst dir die Archäologen vor, wie sie mit klopfendem Herzen die Erde wegpinseln.
+
+Da spiegelt sich etwas in der Scheibe. Hinter dir steht jemand mit Hut und rotem Regenschirm. Lotta! Als du dich umdrehst, lächelt sie dich an, ganz ruhig, fast ein bisschen stolz. Dann legt sie einen Finger auf die Lippen, dreht sich um und verschwindet zwischen den Besuchern.
+
+Konrad flattert hinterher, kommt aber allein zurück. „Krah! Bald“, krächzt er nur. Was hat das zu bedeuten?`,
+    raetsel: `6400 Gräber in 92 Jahren: Wie viele sind das ungefähr pro Jahr? Runde auf Zehner.`,
+    typ: "zahl", loesung: [70, 69], tipp: `Rechne grob mit 6300 geteilt durch 90.`,
+    beweis: "Ein Museumsplan", danach: `Etwa 70 Gräber pro Jahr. Und Lotta weiß jetzt, dass du ihr auf der Spur bist.` },
+  { n: 22, titel: "Der letzte Code", ort: "Zuhause",
+    text: `Am nächsten Morgen liegt ein Briefumschlag vor eurer Haustür. Konrad sitzt daneben und bewacht ihn. Darin steckt ein Zettel, wieder in dieser feinen, altmodischen Schrift. Aber diesmal stehen da keine Wörter, sondern nur Zahlen, getrennt durch kleine Striche.
+
+„Krah! Jede Zahl ist ein Buchstabe“, erklärt Konrad. „Die Eins ist das A, die Zwei ist das B, und so weiter. Das ist einer der ältesten Geheimcodes, die es gibt.“
+
+Du holst dir ein Blatt Papier und schreibst das Alphabet auf, mit den Zahlen darunter. Das dauert ein bisschen, aber dann kannst du anfangen.
+
+Während du schreibst, denkst du über den ganzen Fall nach. Über die Seidenbarone, die nach Krefeld geflohen sind. Über die 13 Familien, die nach Amerika gefahren sind. Über die Burg, die Römer und das Fürstengrab. Alles in Krefeld hat eine Geschichte, und jede Geschichte hängt irgendwie mit einer anderen zusammen.
+
+Bevor du den Code knackst, hat Konrad noch einen Auftrag für dich. Denn nicht nur Städte haben alte Geschichten, auch Familien. Gibt es bei euch ein Erbstück, das schon den Großeltern oder Urgroßeltern gehört hat?`,
+    befragung: `Frag Mama oder Papa nach einem Erbstück eurer Familie: Was ist es, und welche Geschichte steckt dahinter?`,
+    raetsel: `A = 1, B = 2, C = 3 … Was heißt 18 – 1 – 20 – 8 – 1 – 21 – 19?`,
+    typ: "text", loesung: ["RATHAUS"], tipp: `R ist der 18. Buchstabe im Alphabet.`,
+    beweis: "Entschlüsselt: RATHAUS", danach: `RATHAUS! Die Truhe war die ganze Zeit dort, wo alles begann.` },
+  { n: 23, titel: "Das Geständnis", ort: "Rathaus",
+    text: `Am Abend vor Heiligabend versammelst du alle im Rathaus: den Oberbürgermeister, Dr. Weber, Jupp und Bruno. Du legst deine Beweise auf den großen Tisch: den Zettel des Diebes, die roten Seidenfäden, die Skizze vom Schlüsselbrett, den Handschuh mit dem L. Konrad sitzt auf der Stuhllehne und schaut sehr wichtig.
+
+Da geht die Tür auf. Herein kommt Lotta Brinkmann, mit Hut und rotem Regenschirm. Sie schaut in die Runde, dann auf dich, und fängt an zu lachen.
+
+„Du hast mich erwischt“, sagt sie. „Ja, ich war es. Nach meiner Führung habe ich mir den Ausstellungsschlüssel vom Brett im Keller geliehen. Und dabei habe ich meinen Schirm vergessen, wie dumm von mir! Das Seidenband am Schlüssel ist schon alt und franst aus. Daher kamen die Fäden.“
+
+„Aber warum?“, fragt Dr. Weber.
+
+Lotta wird ernst. „Weil kaum noch jemand die alten Geschichten unserer Stadt kennt. Die Seidenweber, die Burg, die Römer. Ich wollte, dass jemand sie wieder entdeckt. Jemand Junges. Deshalb habe ich jede Spur selbst gelegt.“ Sie zieht den Seidenschlüssel aus der Manteltasche. „Im Stadtarchiv habe ich herausgefunden, dass im Keller dieses Rathauses eine alte Truhe der Seidenweber steht. Und du, mein junger Detektiv, hast fast alle Ziffern für ihr Schloss gesammelt.“
+
+Alle schauen dich an. Die vierte Ziffer fehlt noch.`,
+    raetsel: `Wie viele Verdächtige hattest du? Das ist die vierte Ziffer.`,
+    typ: "zahl", loesung: [3], tipp: `Jupp, Bruno und …`, ziffer: 3,
+    beweis: "Vierte Ziffer: 3", danach: `Die vierte Ziffer ist eine 3. Lotta zwinkert dir zu. Morgen öffnest du die Truhe!` },
+  { n: 24, titel: "Die Truhe", ort: "Rathauskeller, Heiligabend",
+    text: `Heiligabend. Draußen läuten die Glocken, und ganz Krefeld riecht nach Plätzchen. Im Rathaus gehen alle zusammen die Treppe hinunter in den Keller: der Oberbürgermeister, Dr. Weber, Jupp mit einer Tüte Reibekuchen, Bruno mit seinem Schlüsselbund und Lotta mit ihrem roten Schirm. Konrad sitzt auf deiner Schulter.
+
+Bruno schließt eine alte, niedrige Tür auf, hinter der du noch nie warst. Dahinter steht sie: eine große Holztruhe mit schweren Eisenbeschlägen, genau wie auf der Zeichnung aus dem Weberbuch.
+
+Lotta reicht dir feierlich den Seidenschlüssel. Er ist schwerer, als du gedacht hast, und das rote Seidenband ist ganz weich. Du steckst ihn in das alte Schloss und drehst. Klack! Der eiserne Riegel springt zur Seite. Aber die Truhe geht noch nicht auf. Darunter wartet ein Zahlenschloss mit vier kleinen Rädchen.
+
+Alle halten den Atem an. Du schlägst dein Notizbuch auf. Vier Ziffern hast du gesammelt, in vier Wochen, auf einer Reise von heute zurück bis zu den Römern. Jetzt kommt es nur noch auf die richtige Reihenfolge an.
+
+Konrad flüstert dir ins Ohr: „Krah. Du schaffst das.“`,
+    raetsel: `Stell das Zahlenschloss ein.`,
+    typ: "code", loesung: ["1683"], tipp: `Deine Ziffern stehen im Notizbuch, in der Reihenfolge, in der du sie gefunden hast.`,
+    beweis: "Die Truhe ist offen", danach: `Das Schloss springt auf! 1683 ist das Jahr, in dem 13 Krefelder Familien übers Meer fuhren. In der Truhe liegt ein uralter Brief von Weberkindern an die Kinder von heute: „Wer dies findet, kennt unsere Stadt. Frohe Weihnachten!“ Lotta lächelt. „Das ist aber noch nicht alles.“ Unter dem Brief liegt ein neuer Zettel in ihrer feinen Schrift: „Die echte Truhe steht dort, wo ein Seidenmann der Stadt einen Wald geschenkt hat. Bei seinem Tempel zwischen den Bäumen.“` },
+  { n: 25, titel: "Die echte Truhe", ort: "Erster Weihnachtstag", bonus: true,
+    text: `Erster Weihnachtstag. Die Geschenke sind ausgepackt, aber du kannst nur an eins denken: an Lottas Zettel. „Die echte Truhe steht dort, wo ein Seidenmann der Stadt einen Wald geschenkt hat. Bei seinem Tempel zwischen den Bäumen.“
+
+Konrad sitzt auf der Fensterbank und klopft ungeduldig mit dem Schnabel gegen die Scheibe. „Krah! Worauf wartest du?“
+
+Ein Wald, den ein Seidenmann verschenkt hat? Du überlegst. In Krefeld gibt es einige Wälder und Parks. Aber welcher davon hat etwas mit Seide zu tun?
+
+Du blätterst durch dein Notizbuch. Die Seidenbarone von der Leyen. Die Weber an ihren Webstühlen. Die Seidenfabrikanten mit ihren modernen Villen. Krefeld ist durch Seide reich geworden. Und manche Seidenfabrikanten haben einen Teil ihres Reichtums der Stadt geschenkt, damit alle etwas davon haben.
+
+Einer von ihnen hieß Wilhelm Deuß. Er hat der Stadt Land und Geld geschenkt, damit dort ein großer Park entsteht, mit Wegen, Wiesen und einem Weiher. Im Mai 1901 wurde er eingeweiht, und die Krefelder durften zum ersten Mal darin spazieren gehen. Zum Dank bekam Wilhelm Deuß später ein Denkmal, das aussieht wie ein kleiner Tempel.
+
+Mama und Papa ziehen schon ihre Jacken an. Konrad flattert aufgeregt hin und her. Jetzt musst du nur noch sagen, wohin es geht. Und vergiss dein Notizbuch nicht: Die vier Ziffern wirst du brauchen.`,
+    raetsel: `Wo steht der Tempel von Wilhelm Deuß?`,
+    typ: "wahl", optionen: ["Im Forstwald", "Im Stadtwald", "Am Hülser Berg"], loesung: ["Im Stadtwald"],
+    tipp: `Der Park, den Deuß geschenkt hat, trägt die Stadt im Namen. Ihr kommt oft daran vorbei, wenn ihr zum Tennis fahrt.`,
+    beweis: "Urkunde: Meisterdetektiv von Krefeld", danach: `Richtig, der Stadtwald! Vorbei am Stadtwaldhaus und den Tennisplätzen geht es zum Deuß-Tempel. Irgendwo dort wartet die echte Truhe. Wenn ihr sie gefunden habt, dreh am Zahlenschloss die vier Ziffern aus deinem Notizbuch. Damit ist der Fall des Krefelder Seidenschlüssels gelöst. Du bist offiziell Meisterdetektiv von Krefeld!` }
+];
+
+/* ===== Speicher ===== */
+const KEY = "seidenschluessel-v1";
+const APP_ID = "seidenschluessel";
+const FSY = window.FamilieSync || null;
+const leer = () => ({ geloest: {}, befragt: {}, tipps: {}, versuche: {} });
+let zustand = leer();
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) zustand = Object.assign(leer(), s); } catch (e) {}
+delete zustand.vorschau;
+/* Die Vorschau ist eine Einstellung dieses Geräts und wird nicht abgeglichen. */
+let vorschau = false;
+try { vorschau = localStorage.getItem(KEY + "-vorschau") === "1"; } catch (e) {}
+function lokalSchreiben() { try { localStorage.setItem(KEY, JSON.stringify(zustand)); } catch (e) {} }
+function speichern() { if (FSY) FSY.stamp(zustand); lokalSchreiben(); if (FSY) FSY.saved(); }
+const elternUI = { offen: false, entsperrt: false, kind: null };
+
+/* ===== Datum ===== */
+function heute() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function oeffnetAm(n) { return new Date(JAHR, 11, n); }
+/* Testversion: diese Türen sind schon vor ihrem Datum offen. Vor dem 1. Dezember leeren: [] */
+const PROBE_TUEREN = /github\.io$/.test(location.hostname) ? [] : [1, 2, 3, 4];
+function istOffen(n) { if (n === 25) return vorschau || (heute() >= oeffnetAm(25) && !!zustand.geloest[24]); return vorschau || PROBE_TUEREN.includes(n) || heute() >= oeffnetAm(n); }
+function heutigeTuer() {
+  let letzte = 0;
+  for (let n = 1; n <= TUEREN.length; n++) if (istOffen(n)) letzte = n;
+  return letzte;
+}
+
+const ansicht = document.getElementById("ansicht");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function woche(n) { return WOCHEN[Math.floor((n - 1) / 6)]; }
+function ziffernHtml() {
+  const z = [6, 12, 18, 23].map(n => zustand.geloest[n] ? TUEREN[n - 1].ziffer : null);
+  return `<div class="schloss"><span class="label">Zahlenschloss:</span><div class="ziffern">${z.map(v => `<span class="ziffer ${v === null ? "leer" : ""}">${v === null ? "?" : v}</span>`).join("")}</div></div>`;
+}
+
+/* ===== Kalender ===== */
+function zeigeKalender() {
+  const h = heutigeTuer();
+  const tageBis = Math.ceil((oeffnetAm(1) - heute()) / 86400000);
+  let statusZeile;
+  if (zustand.geloest[25]) statusZeile = `<p class="zeile"><b>Fall abgeschlossen!</b> Du bist offiziell Meisterdetektiv von Krefeld.</p>`;
+  else if (zustand.geloest[24] && !istOffen(25)) statusZeile = `<p class="zeile"><b>Die Truhe ist offen!</b> Das letzte Kapitel öffnet sich am 25. Dezember.</p>`;
+  else if (h === 0) statusZeile = `<p class="zeile">Der Fall beginnt am <b>1. Dezember</b>. Noch ${tageBis} ${tageBis === 1 ? "Tag" : "Tage"}.</p>`;
+  else statusZeile = `<p class="zeile">Heute ist <b>Tür ${h}</b> dran: ${esc(TUEREN[h - 1].titel)}.</p><div><button class="knopf" type="button" data-tuer="${h}">Tür ${h} öffnen</button></div>`;
+
+  let html = `
+    <header class="einband">
+      <img src="${BILDER[1]}" alt="Ein Junge mit Lupe und die Krähe Konrad vor dem verschneiten Krefelder Rathaus">
+      <div class="titel"><h1>Der Krefelder Seidenschlüssel</h1><p>Ein Adventskrimi in 24 Türen</p></div>
+    </header>
+    <section class="status">${statusZeile}${ziffernHtml()}</section>`;
+
+  WOCHEN.forEach(w => {
+    html += `<section class="woche" style="--wt:${w.farbe}"><h2>${w.bonus ? "" : `Woche ${w.nr}: `}${esc(w.titel)} <small>${esc(w.zeit)}</small></h2><div class="tueren">`;
+    for (let n = (w.nr - 1) * 6 + 1; n <= Math.min(w.nr * 6, TUEREN.length); n++) {
+      const offen = istOffen(n), geloest = !!zustand.geloest[n];
+      const klassen = ["tuer", geloest ? "geloest" : offen ? "offen" : "zu", (n === h && !geloest) ? "heute" : ""].join(" ");
+      const bild = geloest && BILDER[n] ? `<span class="bildchen" style="background-image:url('${BILDER[n]}')"></span>` : "";
+      const label = geloest ? `Tür ${n}, gelöst` : offen ? `Tür ${n} öffnen` : n === 25 ? "Das letzte Kapitel, öffnet am 25. Dezember nach Tür 24" : `Tür ${n}, öffnet am ${n}. Dezember`;
+      html += `<button class="${klassen}" type="button" data-tuer="${n}" ${offen ? "" : "aria-disabled=\"true\""} aria-label="${label}">
+        ${bild}<span class="nr">${n}</span>${!offen ? `<span class="datum">${n === 25 ? "Bonus" : `ab ${n}.12.`}</span>` : ""}${geloest ? `<span class="stempel" aria-hidden="true">✓</span>` : ""}
+      </button>`;
+    }
+    html += `</div></section>`;
+  });
+
+  const k = elternUI.kind;
+  const kindInfo = k ? `<div class="karte"><h3>Stand von ${esc(k.name)}</h3><p>${Object.keys(k.data.geloest || {}).length} von 24 Türen gelöst, ${Object.keys(k.data.tipps || {}).length} Tipps genutzt, ${Object.keys(k.data.befragt || {}).length} Befragungen erledigt.</p><p class="ort">Stand vom ${k.at.toLocaleString("de-DE", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })} Uhr</p></div>` : "";
+  html += `<section class="eltern"><details id="eltern-details" ${elternUI.offen ? "open" : ""}><summary>Für Mama und Papa</summary><div class="panel">
+      ${elternUI.entsperrt ? `
+        <label class="haken"><input type="checkbox" id="vorschau" ${vorschau ? "checked" : ""}> Vorschau: alle Türen sofort öffnen (nur auf diesem Gerät)</label>
+        <button class="knopf leise" type="button" id="reset">Fortschritt auf diesem Gerät löschen</button>
+        <div id="reset-msg" class="rueckmeldung"></div>
+        ${FSY ? FSY.panelHTML() : ""}${kindInfo}` : `
+        <div><label for="pin">Eltern-PIN</label><br><input id="pin" type="password" inputmode="numeric" autocomplete="off"> <button class="knopf leise" type="button" id="pin-ok">Entsperren</button><div id="pin-msg" class="rueckmeldung"></div></div>`}
+      </div></details></section>`;
+
+  ansicht.innerHTML = html;
+  setzeNav("kalender");
+
+  ansicht.querySelectorAll("[data-tuer]").forEach(b => b.addEventListener("click", () => {
+    const n = +b.dataset.tuer;
+    if (istOffen(n)) location.hash = "tuer-" + n;
+    else { let m = document.getElementById("zu-msg"); if (!m) { m = document.createElement("p"); m.id = "zu-msg"; m.className = "rueckmeldung"; m.setAttribute("role", "status"); document.querySelector(".status").appendChild(m); } m.textContent = n === 25 ? "Das letzte Kapitel öffnet sich am 25. Dezember, wenn die Truhe in Tür 24 offen ist." : `Tür ${n} öffnet erst am ${n}. Dezember. Zum Ausprobieren: ganz unten „Für Mama und Papa“.`; b.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches && b.animate([{ transform: "translateX(0)" }, { transform: "translateX(-4px)" }, { transform: "translateX(4px)" }, { transform: "translateX(0)" }], { duration: 250 }); }
+  }));
+  document.getElementById("eltern-details").addEventListener("toggle", e => { elternUI.offen = e.target.open; });
+  const pinOk = document.getElementById("pin-ok");
+  if (pinOk) pinOk.addEventListener("click", () => {
+    if (document.getElementById("pin").value.trim() === ELTERN_PIN) { elternUI.entsperrt = true; zeigeKalender(); }
+    else document.getElementById("pin-msg").textContent = "Die PIN stimmt nicht.";
+  });
+  const vs = document.getElementById("vorschau");
+  if (vs) vs.addEventListener("change", e => { vorschau = e.target.checked; try { localStorage.setItem(KEY + "-vorschau", vorschau ? "1" : "0"); } catch (err) {} zeigeKalender(); });
+  let resetBereit = false;
+  const rs = document.getElementById("reset");
+  if (rs) rs.addEventListener("click", e => {
+    if (!resetBereit) { resetBereit = true; e.target.textContent = "Wirklich löschen? Nochmal tippen"; return; }
+    zustand = leer(); speichern(); zeigeKalender();
+    document.getElementById("reset-msg").textContent = "Fortschritt gelöscht.";
+  });
+}
+
+/* ===== Tür ===== */
+function normText(s) { return s.toUpperCase().replace(/Ä/g, "AE").replace(/Ö/g, "OE").replace(/Ü/g, "UE").replace(/[^A-Z]/g, ""); }
+function normZahl(s) { const t = String(s).replace(/[\s.€]/g, "").replace(",", "."); return t === "" ? NaN : Number(t); }
+
+function zeigeTuer(n) {
+  const t = TUEREN[n - 1];
+  if (!t || !istOffen(n)) { location.hash = ""; return; }
+  const w = woche(n);
+  const geloest = !!zustand.geloest[n];
+  const bild = BILDER[n]
+    ? `<img src="${BILDER[n]}" alt="Bild zu Tür ${n}: ${esc(t.titel)}">`
+    : `<div class="platzhalter" style="--wt:${w.farbe}"><div><b>${n}</b>Das Bild zu diesem Kapitel folgt</div></div>`;
+
+  let eingabe = "";
+  if (t.typ === "zahl" || t.typ === "text") {
+    eingabe = `<div class="antwort"><div class="feld"><label for="a1">Deine Antwort</label><input id="a1" ${t.typ === "zahl" ? 'inputmode="numeric"' : 'autocapitalize="characters"'} autocomplete="off"></div><button class="knopf" type="button" id="pruefen">Prüfen</button></div>`;
+  } else if (t.typ === "paar") {
+    eingabe = `<div class="antwort">${t.felder.map((f, i) => `<div class="feld"><label for="a${i + 1}">${f}</label><input id="a${i + 1}" class="klein" inputmode="numeric" autocomplete="off"></div>`).join("")}<button class="knopf" type="button" id="pruefen">Prüfen</button></div>`;
+  } else if (t.typ === "wahl") {
+    eingabe = `<div class="wahl" role="group" aria-label="Antworten">${t.optionen.map(o => `<button type="button" data-wahl="${esc(o)}" aria-pressed="false">${esc(o)}</button>`).join("")}</div>`;
+  } else if (t.typ === "code") {
+    eingabe = `<div class="antwort"><div class="code" role="group" aria-label="Zahlenschloss">${[1, 2, 3, 4].map(i => `<input id="c${i}" inputmode="numeric" maxlength="1" aria-label="Ziffer ${i}" autocomplete="off">`).join("")}</div><button class="knopf" type="button" id="pruefen">Öffnen</button></div>`;
+  }
+
+  const befragung = t.befragung ? `<div class="karte befragung"><h3>Befragung</h3><p>${esc(t.befragung)}</p>
+     <label class="haken"><input type="checkbox" id="befragt" ${zustand.befragt[n] ? "checked" : ""}> Erledigt</label></div>` : "";
+
+  const raetselKarte = geloest ? "" : `<div class="karte" id="raetsel"><h3>Konrads Rätsel</h3><p>${esc(t.raetsel)}</p>${eingabe}
+     <div class="rueckmeldung" id="rm" role="status"></div>
+     <div class="tipp">${zustand.tipps[n] ? `<div class="bubble">${esc(t.tipp)}</div>` : `<button class="knopf leise" type="button" id="tipp">Tipp von Konrad</button>`}</div></div>`;
+
+  ansicht.innerHTML = `<article class="seite" style="--wt:${w.farbe}">
+    <div class="seitenkopf"><button class="zurueck" type="button" id="zurueck">← Zum Kalender</button><span class="kapitel-nr">${n === 25 ? "Letztes Kapitel" : `Kapitel ${n} von 24`}</span></div>
+    <div class="layout">
+      <div class="bildspalte"><div class="bildrahmen">${bild}</div></div>
+      <div class="textspalte">
+        <div class="text"><h2>${esc(t.titel)}</h2><p class="ort">${esc(t.ort)} · ${w.bonus ? "Weihnachten" : `Woche ${w.nr}: ${esc(w.titel)}`}</p>${t.text.split(/\n\s*\n/).map((a, i) => `<p class="${i === 0 ? "erzaehlung" : "absatz"}">${esc(a.trim())}</p>`).join("")}</div>
+        ${befragung}${raetselKarte}
+        <div id="ergebnis">${geloest ? ergebnisHtml(n) : ""}</div>
+      </div>
+    </div>
+  </article>`;
+  setzeNav("");
+  window.scrollTo(0, 0);
+
+  document.getElementById("zurueck").addEventListener("click", () => { location.hash = ""; });
+  const bf = document.getElementById("befragt");
+  if (bf) bf.addEventListener("change", e => { zustand.befragt[n] = e.target.checked; speichern(); });
+  if (geloest) { verbindeWeiter(n); return; }
+
+  const tb = document.getElementById("tipp");
+  if (tb) tb.addEventListener("click", () => { zustand.tipps[n] = true; speichern(); tb.parentElement.innerHTML = `<div class="bubble">${esc(t.tipp)}</div>`; });
+
+  const rm = document.getElementById("rm");
+  const falschSaetze = ["Noch nicht. Konrad legt den Kopf schief.", "Hmm, das stimmt noch nicht. Probier es nochmal!", "Krah! Fast jeder Detektiv braucht mehrere Anläufe."];
+  let versuche = 0;
+  function loesen() {
+    zustand.geloest[n] = true; speichern();
+    if (FSY) FSY.log(APP_ID, "tuer_geloest", { tuer: n, fehlversuche: zustand.versuche[n] || 0, tipp: !!zustand.tipps[n] });
+    document.getElementById("raetsel").remove();
+    const e = document.getElementById("ergebnis");
+    e.innerHTML = ergebnisHtml(n);
+    verbindeWeiter(n);
+    e.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+  function falsch(wert) {
+    zustand.versuche[n] = (zustand.versuche[n] || 0) + 1; lokalSchreiben();
+    const hinweis = t.fast && t.fast[wert];
+    rm.className = "rueckmeldung" + (hinweis ? "" : " falsch");
+    rm.textContent = hinweis || falschSaetze[versuche++ % falschSaetze.length];
+  }
+
+  if (t.typ === "wahl") {
+    ansicht.querySelectorAll("[data-wahl]").forEach(b => b.addEventListener("click", () => {
+      ansicht.querySelectorAll("[data-wahl]").forEach(x => x.setAttribute("aria-pressed", "false"));
+      b.setAttribute("aria-pressed", "true");
+      if (t.loesung.includes(b.dataset.wahl)) loesen(); else falsch(null);
+    }));
+    return;
+  }
+  if (t.typ === "code") {
+    const fs = [1, 2, 3, 4].map(i => document.getElementById("c" + i));
+    fs.forEach((f, i) => f.addEventListener("input", () => { f.value = f.value.replace(/\D/g, "").slice(-1); if (f.value && fs[i + 1]) fs[i + 1].focus(); }));
+  }
+  const pruefen = () => {
+    if (t.typ === "zahl") { const v = normZahl(document.getElementById("a1").value); if (t.loesung.includes(v)) loesen(); else falsch(v); }
+    else if (t.typ === "text") { const v = normText(document.getElementById("a1").value); if (t.loesung.includes(v)) loesen(); else falsch(v); }
+    else if (t.typ === "paar") { const a = normZahl(document.getElementById("a1").value), b = normZahl(document.getElementById("a2").value); if (a === t.loesung[0] && b === t.loesung[1]) loesen(); else falsch(null); }
+    else if (t.typ === "code") { const v = [1, 2, 3, 4].map(i => document.getElementById("c" + i).value).join(""); if (t.loesung.includes(v)) loesen(); else { rm.className = "rueckmeldung falsch"; rm.textContent = "Das Schloss bleibt zu. Schau in dein Notizbuch!"; } }
+  };
+  document.getElementById("pruefen").addEventListener("click", pruefen);
+  ansicht.querySelectorAll(".antwort input").forEach(i => i.addEventListener("keydown", e => { if (e.key === "Enter") pruefen(); }));
+}
+
+function ergebnisHtml(n) {
+  const t = TUEREN[n - 1];
+  const naechsteOffen = n < TUEREN.length && istOffen(n + 1) && !zustand.geloest[n + 1];
+  const ausblick = n === TUEREN.length || naechsteOffen ? "" : n === 24 ? `<p><i>Das letzte Kapitel öffnet sich am 25. Dezember.</i></p>` : `<p><i>Das nächste Kapitel wartet hinter Tür ${n + 1}, ab dem ${n + 1}. Dezember.</i></p>`;
+  const knoepfe = `<div class="weiter"><button class="knopf" type="button" id="zumkalender">Zurück zum Kalender</button>${naechsteOffen ? ` <button class="knopf leise hell" type="button" id="weiter">${n + 1 === 25 ? "Zum letzten Kapitel" : `Tür ${n + 1} nachholen`}</button>` : ""}</div>`;
+  return `<div class="geloest-box"><div class="siegel" aria-hidden="true">GELÖST<br>Tür ${n}</div><h3>${n === 25 ? "Fall abgeschlossen!" : n === 24 ? "Die Truhe ist offen!" : "Gelöst!"}</h3><p>${esc(t.danach)}</p><p>Ins Notizbuch: <span class="beweis">${esc(t.beweis)}</span></p>${ausblick}${knoepfe}</div>`;
+}
+function verbindeWeiter(n) {
+  const k = document.getElementById("zumkalender"); if (k) k.addEventListener("click", () => { location.hash = ""; });
+  const b = document.getElementById("weiter"); if (b) b.addEventListener("click", () => { location.hash = "tuer-" + (n + 1); });
+}
+
+/* ===== Notizbuch ===== */
+function zeigeNotizbuch() {
+  const g = zustand.geloest;
+  const personen = [
+    { name: "Jupp", rolle: "Reibekuchenstand", sichtbar: g[3], notiz: g[16] ? "Hat Bruno Reibekuchen gebracht. Alibi stimmt." : "Wurde nachts am Rathaus gesehen. Kasse: 124 Reibekuchen.", chip: g[16] ? ["e", "entlastet"] : ["v", "verdächtig"] },
+    { name: "Bruno Hagedorn", rolle: "Hausmeister", sichtbar: g[4], notiz: g[16] ? "Hat die Lichterkette repariert. Alibi stimmt." : "Hat alle Schlüssel. Ein Haken ist leer.", chip: g[16] ? ["e", "entlastet"] : ["v", "verdächtig"] },
+    { name: "Lotta Brinkmann", rolle: "Stadtführerin", sichtbar: g[7], notiz: g[23] ? "Hat alles gestanden. Wollte, dass jemand Krefelds Geschichte entdeckt." : g[16] ? "Hat geflunkert! Ihr roter Schirm stand im Rathaus." : "Hilfsbereit. Hat einen roten Regenschirm.", chip: g[23] ? ["u", "überführt"] : g[16] ? ["v", "sehr verdächtig"] : ["v", "verdächtig?"] }
+  ].filter(p => p.sichtbar);
+  const beweise = TUEREN.filter(t => g[t.n]);
+
+  ansicht.innerHTML = `<div class="notizbuch">
+    <h2>Philips Ermittler-Notizbuch</h2>
+    <p class="leise">Fall: der verschwundene Seidenschlüssel</p>
+    <h3>Zahlenschloss</h3>
+    <div>${[6, 12, 18, 23].map(n => g[n] ? TUEREN[n - 1].ziffer : "?").join("  ·  ")}</div>
+    <h3>Verdächtige</h3>
+    <div class="verdaechtig">${personen.length ? personen.map(p => `<div class="person"><b>${esc(p.name)}</b> (${esc(p.rolle)})<span class="chip ${p.chip[0]}">${p.chip[1]}</span><br>${esc(p.notiz)}</div>`).join("") : `<div class="leise">Noch niemand. Öffne die erste Tür!</div>`}</div>
+    <h3>Beweisstücke</h3>
+    <ul>${beweise.length ? beweise.map(t => `<li>Tür ${t.n}: ${esc(t.beweis)}</li>`).join("") : `<li class="leise">Noch keine Beweise gesammelt.</li>`}</ul>
+  </div>`;
+  setzeNav("notizbuch");
+  window.scrollTo(0, 0);
+}
+
+/* ===== Navigation ===== */
+function setzeNav(aktiv) {
+  document.getElementById("nav-kalender").toggleAttribute("aria-current", aktiv === "kalender");
+  document.getElementById("nav-notizbuch").toggleAttribute("aria-current", aktiv === "notizbuch");
+  if (aktiv === "kalender") document.getElementById("nav-kalender").setAttribute("aria-current", "page");
+  if (aktiv === "notizbuch") document.getElementById("nav-notizbuch").setAttribute("aria-current", "page");
+}
+document.getElementById("nav-kalender").addEventListener("click", () => { location.hash = ""; zeigeKalender(); });
+document.getElementById("nav-notizbuch").addEventListener("click", () => { location.hash = "notizbuch"; });
+
+function route() {
+  const h = location.hash.replace("#", "");
+  const m = h.match(/^tuer-(\d{1,2})$/);
+  if (m) zeigeTuer(+m[1]);
+  else if (h === "notizbuch") zeigeNotizbuch();
+  else zeigeKalender();
+}
+window.addEventListener("hashchange", route);
+route();
+if (FSY) FSY.attach({
+  app: APP_ID,
+  get: () => zustand,
+  set: d => { zustand = Object.assign(leer(), d); },
+  store: lokalSchreiben,
+  render: route,
+  idle: () => !location.hash.startsWith("#tuer-"),
+  hasProgress: () => Object.keys(zustand.geloest).length > 0,
+  showChild: (data, info) => { elternUI.kind = { data, name: info.name, at: info.at }; zeigeKalender(); },
+  btn: "knopf", btn2: "knopf leise"
+});
+try { if ("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(() => {}); } catch (e) {}
+</script>
+</body>
+</html>
