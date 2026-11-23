@@ -56,7 +56,8 @@ button { cursor: pointer; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; margin: 0; }
 
 /* Einband */
-.einband { position: relative; background: var(--nacht); color: var(--papier); }
+.einband { position: relative; background: var(--nacht); color: var(--papier); overflow: hidden; }
+.einband .titel { z-index: 2; }
 .einband img { display: block; width: 100%; height: auto; aspect-ratio: 1024/572; object-fit: cover; opacity: .9; }
 .einband .titel {
   position: absolute; inset: auto 0 0 0;
@@ -134,6 +135,26 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: bala
   transform: rotate(-0.4deg);
 }
 .bildrahmen img { display: block; width: 100%; height: auto; }
+.bildbox { position: relative; overflow: hidden; }
+.bildbox img { transform-origin: 55% 45%; }
+.bewegt .bildbox img { animation: kamera 26s ease-in-out infinite alternate; }
+@keyframes kamera { from { transform: scale(1); } to { transform: scale(1.07) translate(-1.2%, -0.8%); } }
+canvas.schnee { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.tueren { perspective: 700px; }
+.tuer.aufgehen { transform-origin: left center; animation: aufgehen .45s ease-in forwards; }
+@keyframes aufgehen { to { transform: rotateY(-82deg); box-shadow: 8px 0 18px rgba(0,0,0,.35); } }
+.frisch .siegel { animation: stempel .65s cubic-bezier(.2,1.5,.4,1) both; }
+@keyframes stempel { 0% { transform: scale(2.6) rotate(-28deg); opacity: 0; } 55% { opacity: 1; } 100% { transform: scale(1) rotate(-8deg); } }
+.siegel { transform: rotate(-8deg); }
+.frisch { animation: wackeln .35s .45s ease-out; }
+@keyframes wackeln { 30% { transform: translateY(3px); } 60% { transform: translateY(-1px); } }
+.rolle-wrap { width: 52px; height: 64px; overflow: hidden; margin: 10px auto 4px; border-radius: 8px;
+  background: linear-gradient(#3b2f22, #241b12); box-shadow: inset 0 3px 6px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.3); }
+.rolle { transform: translateY(calc((10 + var(--z)) * -64px)); }
+.rolle span { display: block; height: 64px; line-height: 64px; text-align: center; color: #f3dfaa; font-family: var(--font-display); font-size: 40px; }
+.frisch .rolle { animation: rollen 1.8s .5s cubic-bezier(.15,.7,.2,1) both; }
+@keyframes rollen { from { transform: translateY(0); } to { transform: translateY(calc((10 + var(--z)) * -64px)); } }
+@media (prefers-reduced-motion: reduce) { .bewegt .bildbox img, .frisch, .frisch .siegel, .frisch .rolle, .tuer.aufgehen { animation: none !important; } }
 .platzhalter {
   aspect-ratio: 1024/572; display: grid; place-items: center; text-align: center;
   background: var(--wt); border: 1px dashed var(--tinte-hell); color: var(--tinte-hell);
@@ -787,6 +808,40 @@ function verbindeFamilie(n) {
   });
 }
 
+/* ===== Bewegung: Schnee, Kamerafahrt, kleine Effekte ===== */
+/* Außenszenen im Winter bekommen Schnee, alle Bilder eine langsame Kamerafahrt. */
+const SCHNEE_TUEREN = [1, 3, 5, 6, 7, 11, 13, 16, 17, 19, 25];
+let bewegungAn = true;
+try { bewegungAn = localStorage.getItem(KEY + "-bewegung") !== "0"; } catch (e) {}
+const bewegung = () => bewegungAn && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+function bewegungAnwenden() { document.body.classList.toggle("bewegt", bewegung()); }
+function schneeStarten(box, dichte) {
+  if (!box || !bewegung()) return;
+  const c = document.createElement("canvas"); c.className = "schnee"; c.setAttribute("aria-hidden", "true");
+  box.appendChild(c);
+  const ctx = c.getContext("2d"); const dpr = Math.min(2, window.devicePixelRatio || 1);
+  let w = 0, h = 0;
+  const groesse = () => { w = box.clientWidth; h = box.clientHeight; c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+  groesse();
+  const neu = oben => ({ x: Math.random() * w, y: oben ? -6 : Math.random() * h, r: 0.8 + Math.random() * 2.2, v: 0.25 + Math.random() * 0.55, p: Math.random() * 6.28 });
+  const flocken = Array.from({ length: Math.max(25, Math.round(dichte * w * h / 9000)) }, () => neu(false));
+  let zuletzt = performance.now();
+  function schritt(t) {
+    if (!c.isConnected || !bewegung()) { c.remove(); return; }
+    const dt = Math.min(50, t - zuletzt) / 16.7; zuletzt = t;
+    if (Math.abs(box.clientWidth - w) > 2) groesse();
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "rgba(255,255,255,0.88)"; ctx.shadowColor = "rgba(40,40,60,0.35)"; ctx.shadowBlur = 2;
+    for (const f of flocken) {
+      f.y += f.v * dt * (0.6 + f.r * 0.25); f.p += 0.02 * dt; f.x += Math.sin(f.p) * 0.3 * dt;
+      if (f.y > h + 6) Object.assign(f, neu(true));
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.283); ctx.fill();
+    }
+    requestAnimationFrame(schritt);
+  }
+  requestAnimationFrame(schritt);
+}
+
 /* ===== Datum ===== */
 function heute() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 function oeffnetAm(n) { return new Date(JAHR, 11, n); }
@@ -843,6 +898,7 @@ function zeigeKalender() {
   html += `<section class="eltern"><details id="eltern-details" ${elternUI.offen ? "open" : ""}><summary>Für Mama und Papa</summary><div class="panel">
       ${elternUI.entsperrt ? `
         <label class="haken"><input type="checkbox" id="vorschau" ${vorschau ? "checked" : ""}> Vorschau: alle Türen sofort öffnen (nur auf diesem Gerät)</label>
+        <label class="haken"><input type="checkbox" id="bewegung" ${bewegungAn ? "checked" : ""}> Schnee und Bewegung</label>
         <button class="knopf leise" type="button" id="reset">Fortschritt auf diesem Gerät löschen</button>
         <div id="reset-msg" class="rueckmeldung"></div>
         ${FSY ? FSY.panelHTML() : ""}${kindInfo}` : `
@@ -851,11 +907,15 @@ function zeigeKalender() {
 
   ansicht.innerHTML = html;
   setzeNav("kalender");
+  bewegungAnwenden();
+  schneeStarten(ansicht.querySelector(".einband"), 1.3);
 
   ansicht.querySelectorAll("[data-tuer]").forEach(b => b.addEventListener("click", () => {
     const n = +b.dataset.tuer;
-    if (istOffen(n)) location.hash = "tuer-" + n;
-    else { let m = document.getElementById("zu-msg"); if (!m) { m = document.createElement("p"); m.id = "zu-msg"; m.className = "rueckmeldung"; m.setAttribute("role", "status"); document.querySelector(".status").appendChild(m); } m.textContent = n === 25 ? "Das letzte Kapitel öffnet sich am 25. Dezember, wenn die Truhe in Tür 24 offen ist." : `Tür ${n} öffnet erst am ${n}. Dezember. Zum Ausprobieren: ganz unten „Für Mama und Papa“.`; b.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches && b.animate([{ transform: "translateX(0)" }, { transform: "translateX(-4px)" }, { transform: "translateX(4px)" }, { transform: "translateX(0)" }], { duration: 250 }); }
+    if (istOffen(n)) {
+      if (bewegung() && !b.classList.contains("aufgehen")) { b.classList.add("aufgehen"); setTimeout(() => { location.hash = "tuer-" + n; }, 430); }
+      else location.hash = "tuer-" + n;
+    } else { let m = document.getElementById("zu-msg"); if (!m) { m = document.createElement("p"); m.id = "zu-msg"; m.className = "rueckmeldung"; m.setAttribute("role", "status"); document.querySelector(".status").appendChild(m); } m.textContent = n === 25 ? "Das letzte Kapitel öffnet sich am 25. Dezember, wenn die Truhe in Tür 24 offen ist." : `Tür ${n} öffnet erst am ${n}. Dezember. Zum Ausprobieren: ganz unten „Für Mama und Papa“.`; b.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches && b.animate([{ transform: "translateX(0)" }, { transform: "translateX(-4px)" }, { transform: "translateX(4px)" }, { transform: "translateX(0)" }], { duration: 250 }); }
   }));
   document.getElementById("eltern-details").addEventListener("toggle", e => { elternUI.offen = e.target.open; });
   const pinOk = document.getElementById("pin-ok");
@@ -863,6 +923,8 @@ function zeigeKalender() {
     if (document.getElementById("pin").value.trim() === ELTERN_PIN) { elternUI.entsperrt = true; zeigeKalender(); }
     else document.getElementById("pin-msg").textContent = "Die PIN stimmt nicht.";
   });
+  const bw = document.getElementById("bewegung");
+  if (bw) bw.addEventListener("change", e => { bewegungAn = e.target.checked; try { localStorage.setItem(KEY + "-bewegung", bewegungAn ? "1" : "0"); } catch (err) {} zeigeKalender(); });
   const vs = document.getElementById("vorschau");
   if (vs) vs.addEventListener("change", e => { vorschau = e.target.checked; try { localStorage.setItem(KEY + "-vorschau", vorschau ? "1" : "0"); } catch (err) {} zeigeKalender(); });
   let resetBereit = false;
@@ -908,7 +970,7 @@ function zeigeTuer(n) {
   ansicht.innerHTML = `<article class="seite" style="--wt:${w.farbe}">
     <div class="seitenkopf"><button class="zurueck" type="button" id="zurueck">← Zum Kalender</button><span class="kapitel-nr">${n === 25 ? "Letztes Kapitel" : `Kapitel ${n} von 24`}</span></div>
     <div class="layout">
-      <div class="bildspalte"><div class="bildrahmen">${bild}</div></div>
+      <div class="bildspalte"><div class="bildrahmen"><div class="bildbox">${bild}</div></div></div>
       <div class="textspalte">
         <div class="text"><h2>${esc(t.titel)}</h2><p class="ort">${esc(t.ort)} · ${w.bonus ? "Weihnachten" : `Woche ${w.nr}: ${esc(w.titel)}`}</p>${t.text.split(/\n\s*\n/).map((a, i) => `<p class="${i === 0 ? "erzaehlung" : "absatz"}">${esc(a.trim())}</p>`).join("")}</div>
         ${befragung}${raetselKarte}
@@ -924,6 +986,8 @@ function zeigeTuer(n) {
   const bf = document.getElementById("befragt");
   if (bf) bf.addEventListener("change", e => { zustand.befragt[n] = e.target.checked; speichern(); });
   verbindeFamilie(n);
+  bewegungAnwenden();
+  if (BILDER[n] && SCHNEE_TUEREN.includes(n)) schneeStarten(ansicht.querySelector(".bildbox"), 1);
   if (geloest) { verbindeWeiter(n); return; }
 
   const tb = document.getElementById("tipp");
@@ -938,6 +1002,7 @@ function zeigeTuer(n) {
     document.getElementById("raetsel").remove();
     const e = document.getElementById("ergebnis");
     e.innerHTML = ergebnisHtml(n);
+    const box = e.querySelector(".geloest-box"); if (box) box.classList.add("frisch");
     verbindeWeiter(n);
     e.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   }
@@ -975,7 +1040,7 @@ function ergebnisHtml(n) {
   const naechsteOffen = n < TUEREN.length && istOffen(n + 1) && !zustand.geloest[n + 1];
   const ausblick = n === TUEREN.length || naechsteOffen ? "" : n === 24 ? `<p><i>Das letzte Kapitel öffnet sich am 25. Dezember.</i></p>` : `<p><i>Das nächste Kapitel wartet hinter Tür ${n + 1}, ab dem ${n + 1}. Dezember.</i></p>`;
   const knoepfe = `<div class="weiter"><button class="knopf" type="button" id="zumkalender">Zurück zum Kalender</button>${naechsteOffen ? ` <button class="knopf leise hell" type="button" id="weiter">${n + 1 === 25 ? "Zum letzten Kapitel" : `Tür ${n + 1} nachholen`}</button>` : ""}</div>`;
-  return `<div class="geloest-box"><div class="siegel" aria-hidden="true">GELÖST<br>Tür ${n}</div><h3>${n === 25 ? "Fall abgeschlossen!" : n === 24 ? "Die Truhe ist offen!" : "Gelöst!"}</h3><p>${esc(t.danach)}</p><p>Ins Notizbuch: <span class="beweis">${esc(t.beweis)}</span></p>${ausblick}${knoepfe}</div>`;
+  return `<div class="geloest-box"><div class="siegel" aria-hidden="true">GELÖST<br>Tür ${n}</div><h3>${n === 25 ? "Fall abgeschlossen!" : n === 24 ? "Die Truhe ist offen!" : "Gelöst!"}</h3>${t.ziffer !== undefined ? `<div class="rolle-wrap" role="img" aria-label="Ziffer ${t.ziffer}"><div class="rolle" style="--z:${t.ziffer}">${[...Array(20)].map((_, i) => `<span>${i % 10}</span>`).join("")}</div></div>` : ""}<p>${esc(t.danach)}</p><p>Ins Notizbuch: <span class="beweis">${esc(t.beweis)}</span></p>${ausblick}${knoepfe}</div>`;
 }
 function verbindeWeiter(n) {
   const k = document.getElementById("zumkalender"); if (k) k.addEventListener("click", () => { location.hash = ""; });
