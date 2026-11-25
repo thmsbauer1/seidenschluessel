@@ -262,6 +262,17 @@ canvas.schnee { position: absolute; inset: 0; width: 100%; height: 100%; pointer
   .bildspalte { position: static; }
 }
 
+/* Ermittlerkarte */
+.ermittlerkarte { margin: 16px 12px 0; padding: 8px; background: #fffaf0; box-shadow: 0 6px 18px rgba(45,35,24,.25); transform: rotate(.3deg); }
+.ermittlerkarte svg { display: block; width: 100%; height: auto; }
+.ermittlerkarte figcaption { font-family: var(--font-hand); font-size: 20px; color: var(--tinte-hell); padding: 4px 6px 2px; }
+.k-name { font-family: var(--font-display); font-size: 19px; fill: #2d2318; paint-order: stroke; stroke: #f4e9d2; stroke-width: 4px; }
+.k-nr { font-family: var(--font-hand); font-size: 18px; fill: #6b5c48; paint-order: stroke; stroke: #f4e9d2; stroke-width: 4px; }
+.k-titel { font-family: var(--font-display); font-size: 26px; fill: #2d2318; }
+.k-klein { font-family: var(--font-hand); font-size: 18px; fill: #6b5c48; }
+.k-fluss { font-family: var(--font-display); font-style: italic; font-size: 26px; fill: #5f7489; }
+@media (min-width: 760px) { .ermittlerkarte { margin: 24px auto 0; max-width: 900px; } }
+
 /* Notizbuch */
 .notizbuch {
   margin: 16px 12px; padding: 18px 18px 24px 40px; border-radius: 4px;
@@ -1047,6 +1058,85 @@ function verbindeWeiter(n) {
   const b = document.getElementById("weiter"); if (b) b.addEventListener("click", () => { location.hash = "tuer-" + (n + 1); });
 }
 
+
+/* ===== Ermittlerkarte: schematischer Krefeld-Plan, Orte erscheinen, sobald ihre Tür offen ist ===== */
+const ORTE = [
+  { id: "zuhause", name: "Zuhause", x: 430, y: 110, pos: "r", tueren: [6, 10, 22], icon: "haus" },
+  { id: "lange", name: "Haus Lange und Haus Esters", x: 495, y: 250, pos: "r", tueren: [11], icon: "villa" },
+  { id: "stadtwald", name: "Stadtwald, Deuß-Tempel", x: 615, y: 175, pos: "r", tueren: [25], icon: "wald", geheim: true },
+  { id: "weber", name: "Alte Weberstube", x: 305, y: 385, pos: "l", tueren: [8], icon: "haus" },
+  { id: "rathaus", name: "Rathaus", x: 405, y: 395, pos: "o", tueren: [1, 2, 4, 7, 23, 24], icon: "saeulen" },
+  { id: "dionysius", name: "Dionysiuskirche", x: 330, y: 470, pos: "l", tueren: [3], icon: "kirche" },
+  { id: "menno", name: "Mennonitenkirche", x: 480, y: 470, pos: "u", tueren: [9], icon: "kirche" },
+  { id: "phila", name: "Philadelphiastraße", x: 590, y: 400, pos: "o", tueren: [5], icon: "schiff" },
+  { id: "textil", name: "Textilmuseum, Andreasmarkt", x: 640, y: 530, pos: "u", tueren: [12, 16], icon: "haus" },
+  { id: "burg", name: "Burg Linn", x: 725, y: 445, pos: "o", tueren: [13, 14, 15, 18], icon: "burg" },
+  { id: "museum", name: "Archäologisches Museum", x: 770, y: 535, pos: "o", tueren: [20, 21], icon: "saeulen" },
+  { id: "uerdingen", name: "Rhein bei Uerdingen", x: 835, y: 270, pos: "l", tueren: [17], icon: "anker" },
+  { id: "gellep", name: "Gellep (Gelduba)", x: 820, y: 640, pos: "l", tueren: [19], icon: "helm" }
+];
+function ortIcon(o, farbe) {
+  const st = `fill="none" stroke="${farbe}" stroke-width="2"`;
+  switch (o.icon) {
+    case "burg": return `<path d="M-14 8 V-6 h5 v-4 h4 v4 h10 v-4 h4 v4 h5 V8 Z" ${st}/><path d="M-3 8 v-6 h6 v6" ${st}/>`;
+    case "kirche": return `<path d="M-10 8 V-2 L0 -8 L10 -2 V8 Z M0 -8 V-18 M-3 -14 H3" ${st}/>`;
+    case "saeulen": return `<path d="M-13 8 H13 M-12 -6 H12 L0 -13 Z M-8 -6 V8 M-2.5 -6 V8 M2.5 -6 V8 M8 -6 V8" ${st}/>`;
+    case "wald": return `<circle cx="-7" cy="-2" r="6" ${st}/><circle cx="6" cy="-5" r="7" ${st}/><path d="M-7 4 V9 M6 2 V9" ${st}/>`;
+    case "villa": return `<path d="M-13 8 V-6 H2 V-1 H13 V8 Z M-9 -2 h6 M5 3 h5" ${st}/>`;
+    case "schiff": return `<path d="M-12 4 H12 L8 9 H-8 Z M0 4 V-12 M0 -11 L9 -2 H0 M0 -9 L-8 -1 H0" ${st}/>`;
+    case "anker": return `<path d="M0 -11 V9 M-6 -6 H6 M-10 2 Q-8 9 0 9 Q8 9 10 2" ${st}/><circle cx="0" cy="-12" r="2.5" ${st}/>`;
+    case "helm": return `<path d="M-10 6 Q-11 -10 0 -11 Q11 -10 10 6 Z M-10 0 H10 M0 -11 V-16" ${st}/>`;
+    default: return `<path d="M-10 8 V-2 L0 -10 L10 -2 V8 Z M-3 8 V2 H3 V8" ${st}/>`;
+  }
+}
+function ermittlerkarte() {
+  const g = zustand.geloest;
+  const sichtbar = o => o.geheim ? !!g[25] : o.tueren.some(n => istOffen(n));
+  const geloestOrt = o => o.tueren.some(n => g[n]);
+  // Ermittlungsweg: gelöste Türen in ihrer Reihenfolge
+  const weg = [];
+  TUEREN.forEach(t => { if (!g[t.n]) return; const o = ORTE.find(x => x.tueren.includes(t.n)); if (o && sichtbar(o) && weg[weg.length - 1] !== o) weg.push(o); });
+  const wegPfad = weg.length > 1 ? `<path d="M${weg.map(o => `${o.x} ${o.y}`).join(" L")}" fill="none" stroke="#a8392a" stroke-width="2.5" stroke-dasharray="7 7" opacity=".75"/>` : "";
+  const orte = ORTE.filter(sichtbar).map(o => {
+    const fertig = geloestOrt(o);
+    const farbe = fertig ? "#a8392a" : "#2d2318";
+    const nummern = o.tueren.filter(n => n <= 24 || g[24]).join(" · ");
+    const L = { r: [28, -2, 16, "start"], l: [-28, -2, 16, "end"], o: [0, -50, -32, "middle"], u: [0, 42, 60, "middle"] }[o.pos || "r"];
+    return `<g transform="translate(${o.x} ${o.y})">
+      <circle r="21" fill="${fertig ? "#f6e4d6" : "#fffaf0"}" stroke="${farbe}" stroke-width="${fertig ? 2.5 : 1.5}"/>
+      ${ortIcon(o, farbe)}
+      ${fertig ? `<circle cx="16" cy="-16" r="9" fill="#a8392a"/><path d="M12 -16 l3 3 l6 -6" fill="none" stroke="#fff" stroke-width="2"/>` : ""}
+      <text x="${L[0]}" y="${L[1]}" text-anchor="${L[3]}" class="k-name">${esc(o.name)}</text>
+      <text x="${L[0]}" y="${L[2]}" text-anchor="${L[3]}" class="k-nr">Tür ${nummern}</text>
+    </g>`;
+  }).join("");
+  const anzahl = ORTE.filter(o => sichtbar(o) && geloestOrt(o)).length;
+  return `<figure class="ermittlerkarte">
+  <svg viewBox="0 0 1000 700" role="img" aria-label="Ermittlerkarte von Krefeld mit ${anzahl} besuchten Orten">
+    <defs>
+      <filter id="tinte"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="4"/></filter>
+      <pattern id="wellen" width="40" height="14" patternUnits="userSpaceOnUse"><path d="M0 7 q10 -6 20 0 t20 0" fill="none" stroke="#7b8fa6" stroke-width="1.3"/></pattern>
+    </defs>
+    <rect x="8" y="8" width="984" height="684" rx="6" fill="#f4e9d2" stroke="#8f7a58" stroke-width="2"/>
+    <rect x="20" y="20" width="960" height="660" fill="none" stroke="#8f7a58" stroke-width="1" stroke-dasharray="2 4"/>
+    <g filter="url(#tinte)">
+      <path d="M915 20 C870 140 890 230 860 330 C835 420 900 520 870 680 L960 680 C985 520 930 420 950 330 C975 230 950 120 980 20 Z" fill="#d9e1e6"/>
+      <path d="M915 20 C870 140 890 230 860 330 C835 420 900 520 870 680 L960 680 C985 520 930 420 950 330 C975 230 950 120 980 20 Z" fill="url(#wellen)" stroke="#5f7489" stroke-width="2"/>
+      <rect x="270" y="345" width="260" height="165" fill="none" stroke="#6b5c48" stroke-width="2.5" stroke-dasharray="10 5"/>
+      <path d="M100 420 C250 410 330 420 500 420 C620 420 700 440 860 430 M420 690 C410 560 410 480 410 420 C410 300 430 200 430 30 M150 650 C300 560 450 470 520 420 C600 360 700 300 860 270 M500 420 C600 480 680 520 860 590" fill="none" stroke="#b9a684" stroke-width="3"/>
+      <g fill="none" stroke="#7c8d6a" stroke-width="1.6">${[[585,150],[650,150],[580,205],[660,205],[620,225]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9"/>`).join("")}</g>
+    </g>
+    <text x="915" y="190" class="k-fluss" transform="rotate(-80 915 190)">Rhein</text>
+    <text x="276" y="532" class="k-klein">Die vier Wälle</text>
+    ${wegPfad}
+    ${orte}
+    <g transform="translate(90 600)" class="k-rose"><circle r="34" fill="none" stroke="#6b5c48"/><path d="M0 -42 L7 0 L0 42 L-7 0 Z" fill="#6b5c48"/><path d="M-42 0 L0 7 L42 0 L0 -7 Z" fill="none" stroke="#6b5c48"/><text y="-48" text-anchor="middle" class="k-klein">N</text></g>
+    <g transform="translate(70 70)"><rect x="-30" y="-36" width="300" height="62" fill="#fffaf0" stroke="#6b5c48"/><text x="120" y="-6" text-anchor="middle" class="k-titel">Ermittlerkarte Krefeld</text><text x="120" y="16" text-anchor="middle" class="k-klein">kein maßstabsgetreuer Plan</text></g>
+  </svg>
+  <figcaption>${anzahl ? `${anzahl} ${anzahl === 1 ? "Ort" : "Orte"} untersucht. Neue Orte erscheinen, sobald ihre Tür offen ist.` : "Noch kein Ort untersucht. Neue Orte erscheinen, sobald ihre Tür offen ist."}</figcaption>
+</figure>`;
+}
+
 /* ===== Notizbuch ===== */
 function zeigeNotizbuch() {
   const g = zustand.geloest;
@@ -1057,7 +1147,7 @@ function zeigeNotizbuch() {
   ].filter(p => p.sichtbar);
   const beweise = TUEREN.filter(t => g[t.n]);
 
-  ansicht.innerHTML = `<div class="notizbuch">
+  ansicht.innerHTML = ermittlerkarte() + `<div class="notizbuch">
     <h2>Philips Ermittler-Notizbuch</h2>
     <p class="leise">Fall: der verschwundene Seidenschlüssel</p>
     <h3>Zahlenschloss</h3>
