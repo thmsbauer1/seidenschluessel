@@ -9,7 +9,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Literata:opsz,wght@7..72,400;7..72,600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Literata:opsz,wght@7..72,400;7..72,600&family=Caveat:wght@500;700&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
 :root {
   /* Ein Buch in der Winternacht: nachtblauer Einband, Papierseiten, Gold für Zahlen, Rostrot für Siegel und Konrads Schal. */
@@ -28,6 +28,7 @@
   --font-display: "IM Fell English", "Iowan Old Style", Georgia, serif;
   --font-text: "Literata", Georgia, "Times New Roman", serif;
   --font-hand: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  --font-maschine: "Special Elite", "Courier New", Courier, monospace;
   color-scheme: light;
 }
 * { box-sizing: border-box; }
@@ -260,6 +261,69 @@ canvas.schnee { position: absolute; inset: 0; width: 100%; height: 100%; pointer
 @media (min-width: 760px) and (orientation: portrait) {
   .layout { grid-template-columns: 1fr; }
   .bildspalte { position: static; }
+}
+
+/* Ermittlungsakte (Kalender) */
+.akte { margin: 18px 12px 0; }
+.akte-reiter { display: inline-block; margin-left: 18px; padding: 7px 20px 5px; border-radius: 9px 9px 0 0;
+  background: #d9b674; color: #4a3416; font-family: var(--font-maschine); font-size: 15px; letter-spacing: .04em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+.akte-deckel { position: relative; display: grid; gap: 16px; padding: 18px; border-radius: 4px 12px 12px 12px;
+  background: linear-gradient(160deg, #e0c088, #d1ab66 70%, #c99f58); color: #3a2a14;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(80,55,20,.25), inset 0 0 40px rgba(120,80,20,.18); }
+.akte-amt { margin: 0 0 6px; font-family: var(--font-maschine); font-size: 13px; letter-spacing: .03em; color: #5a4220; }
+.akte-kopf h1 { font-size: 34px; line-height: 1.05; color: #2d2318; }
+.akte-sub { margin: 6px 0 0; font-family: var(--font-display); font-style: italic; font-size: 18px; color: #4a3416; }
+.akte-stempel { position: absolute; top: 14px; right: 14px; padding: 4px 12px; border: 3px solid rgba(168,57,42,.85); border-radius: 4px;
+  color: rgba(168,57,42,.9); font-family: var(--font-maschine); font-size: 17px; letter-spacing: .12em; transform: rotate(9deg);
+  mix-blend-mode: multiply; }
+.akte-foto { position: relative; margin: 6px 4px 0; padding: 8px 8px 6px; background: #fffdf7; transform: rotate(-1.6deg);
+  box-shadow: 0 6px 14px rgba(0,0,0,.3); }
+.akte-foto figcaption { font-family: var(--font-hand); font-size: 20px; color: #4a3d2c; padding: 4px 2px 0; }
+.akte-foto .einband img { opacity: 1; max-height: none; }
+.klammer { position: absolute; top: -16px; left: 28px; width: 18px; height: 54px; border: 3px solid #8c8f94; border-radius: 10px;
+  z-index: 3; box-shadow: 1px 1px 2px rgba(0,0,0,.25); }
+.klammer::after { content: ""; position: absolute; left: 3px; top: 6px; width: 6px; height: 34px; border: 3px solid #8c8f94; border-radius: 8px; border-bottom: 0; }
+.akte-daten { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; align-items: baseline;
+  background: #fffdf6; box-shadow: 0 3px 8px rgba(0,0,0,.2); font-family: var(--font-maschine); font-size: 15px;
+  background-image: repeating-linear-gradient(transparent 0 27px, #e7dcc6 27px 28px); }
+.akte-daten dt { text-transform: uppercase; font-size: 12px; letter-spacing: .08em; color: #7a6548; }
+.akte-daten dd { margin: 0; color: #2d2318; }
+.status-stempel { display: inline-block; padding: 0 8px; border: 2px solid #3f6b4a; color: #3f6b4a; transform: rotate(-3deg); }
+.status-stempel.fertig { border-color: var(--rost); color: var(--rost); }
+.status { margin: 16px 12px 0; padding: 14px 16px; background: #fffdf6; box-shadow: 0 3px 10px rgba(45,35,24,.18); border-left: 5px solid var(--rost); }
+.status .zeile { margin: 0; }
+.auftrag { display: inline-block; margin-right: 6px; padding: 0 6px; background: var(--rost); color: #fff7ea; font-family: var(--font-maschine); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; vertical-align: 2px; }
+.woche h2 .teil { display: inline-block; margin-right: 6px; padding: 3px 12px 1px; border-radius: 7px 7px 0 0; background: #d9b674; color: #4a3416;
+  font-family: var(--font-maschine); font-size: 14px; letter-spacing: .05em; vertical-align: 4px; }
+.woche h2 { border-bottom: 2px solid #d9b674; padding-bottom: 2px; }
+.tuer { background: #fffdf6; border: 1px solid #cdb88f; border-top: 7px solid var(--wt, var(--w1)); border-radius: 3px;
+  box-shadow: 0 2px 5px rgba(45,35,24,.18); font-family: var(--font-maschine); }
+.tuer .kartei-nr { font-size: 11px; color: #8a7556; letter-spacing: .05em; }
+.tuer .nr { font-family: var(--font-maschine); font-size: 30px; }
+.tuer .datum { font-family: var(--font-maschine); }
+.tuer.zu { background: #f1ead9; opacity: .75; }
+.tuer.offen { border-color: var(--gold); }
+.tuer.heute { transform: translateY(-3px); }
+.tuer.heute::before { content: ""; position: absolute; top: 4px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e06a55, #a8392a 60%, #6e2219); box-shadow: 0 2px 3px rgba(0,0,0,.45); z-index: 2; }
+.tuer.geloest .kartei-nr { position: relative; color: #fff7ea; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.tuer .stempel { width: auto; height: auto; left: 50%; right: auto; bottom: 8px; transform: translateX(-50%) rotate(-12deg); border-radius: 3px;
+  padding: 1px 5px; background: rgba(255,253,246,.85); color: var(--rost); border: 2px solid var(--rost); font-family: var(--font-maschine); font-size: 11px; letter-spacing: .08em; box-shadow: none; }
+@media (max-width: 759px) {
+  .akte-stempel { position: static; justify-self: end; margin: -6px 6px -4px 0; }
+}
+.tueren { grid-template-columns: repeat(3, 1fr); }
+@media (min-width: 480px) { .tueren { grid-template-columns: repeat(6, 1fr); } }
+.tuer.geloest .kartei-nr { display: none; }
+@media (min-width: 760px) {
+  .akte { margin: 26px 36px 0; }
+  .akte-deckel { grid-template-columns: 1.15fr 1fr; grid-template-areas: "kopf kopf" "foto daten"; padding: 26px 30px 30px; column-gap: 28px; }
+  .akte-kopf { grid-area: kopf; } .akte-foto { grid-area: foto; } .akte-daten { grid-area: daten; align-self: center; font-size: 17px; }
+  .akte-kopf h1 { font-size: 48px; }
+  .akte-stempel { top: 26px; right: 30px; font-size: 22px; }
+  .status { margin: 20px 36px 0; }
+  .tuer .nr { font-size: 38px; }
 }
 
 /* Ermittlerkarte */
@@ -878,27 +942,50 @@ function zeigeKalender() {
   const h = heutigeTuer();
   const tageBis = Math.ceil((oeffnetAm(1) - heute()) / 86400000);
   let statusZeile;
-  if (zustand.geloest[25]) statusZeile = `<p class="zeile"><b>Fall abgeschlossen!</b> Du bist offiziell Meisterdetektiv von Krefeld.</p>`;
-  else if (zustand.geloest[24] && !istOffen(25)) statusZeile = `<p class="zeile"><b>Die Truhe ist offen!</b> Das letzte Kapitel öffnet sich am 25. Dezember.</p>`;
-  else if (h === 0) statusZeile = `<p class="zeile">Der Fall beginnt am <b>1. Dezember</b>. Noch ${tageBis} ${tageBis === 1 ? "Tag" : "Tage"}.</p>`;
-  else statusZeile = `<p class="zeile">Heute ist <b>Tür ${h}</b> dran: ${esc(TUEREN[h - 1].titel)}.</p><div><button class="knopf" type="button" data-tuer="${h}">Tür ${h} öffnen</button></div>`;
+  if (zustand.geloest[25]) statusZeile = `<p class="zeile"><b>Fall abgeschlossen.</b> Du bist offiziell Meisterdetektiv von Krefeld.</p>`;
+  else if (zustand.geloest[24] && !istOffen(25)) statusZeile = `<p class="zeile"><b>Die Truhe ist offen.</b> Das letzte Kapitel öffnet sich am 25. Dezember.</p>`;
+  else if (h === 0) statusZeile = `<p class="zeile">Die Ermittlung beginnt am <b>1. Dezember</b>. Noch ${tageBis} ${tageBis === 1 ? "Tag" : "Tage"}.</p>`;
+  else statusZeile = `<p class="zeile"><span class="auftrag">Tagesauftrag</span> Kapitel ${h}: <b>${esc(TUEREN[h - 1].titel)}</b></p><div><button class="knopf" type="button" data-tuer="${h}">Kapitel ${h} aufschlagen</button></div>`;
+  const g = zustand.geloest;
+  const verdaechtige = [g[3] && "Jupp", g[4] && "B. Hagedorn", g[7] && "L. Brinkmann"].filter(Boolean);
+  const aktenStatus = g[25] ? "Gelöst" : h === 0 ? "Noch nicht eröffnet" : "In Ermittlung";
 
   let html = `
-    <header class="einband">
-      <img src="${BILDER[1]}" alt="Ein Junge mit Lupe und die Krähe Konrad vor dem verschneiten Krefelder Rathaus">
-      <div class="titel"><h1>Der Krefelder Seidenschlüssel</h1><p>Ein Adventskrimi in 24 Türen</p></div>
-    </header>
+    <div class="akte">
+      <div class="akte-reiter">Akte Nr. 1683</div>
+      <header class="akte-deckel">
+        <div class="akte-kopf">
+          <p class="akte-amt">Detektivbüro Krefeld · Abteilung für rätselhafte Fälle</p>
+          <h1>Der Krefelder Seidenschlüssel</h1>
+          <p class="akte-sub">Ermittlungsakte in 24 Kapiteln</p>
+        </div>
+        <div class="akte-stempel" aria-hidden="true">${g[25] ? "GELÖST" : "VERTRAULICH"}</div>
+        <figure class="akte-foto">
+          <span class="klammer" aria-hidden="true"></span>
+          <div class="einband"><img src="${BILDER[1]}" alt="Ein Junge mit Lupe und die Krähe Konrad vor dem verschneiten Krefelder Rathaus"></div>
+          <figcaption>Tatort Rathaus, 1. Dezember</figcaption>
+        </figure>
+        <dl class="akte-daten">
+          <dt>Fall</dt><dd>Diebstahl des Seidenschlüssels</dd>
+          <dt>Tatort</dt><dd>Rathaus Krefeld</dd>
+          <dt>Ermittler</dt><dd>Philip</dd>
+          <dt>Partner</dt><dd>Konrad (Krähe)</dd>
+          <dt>Verdächtige</dt><dd>${verdaechtige.length ? verdaechtige.join(", ") : "noch keine"}</dd>
+          <dt>Status</dt><dd><span class="status-stempel ${g[25] ? "fertig" : ""}">${aktenStatus}</span></dd>
+        </dl>
+      </header>
+    </div>
     <section class="status">${statusZeile}${ziffernHtml()}</section>`;
 
   WOCHEN.forEach(w => {
-    html += `<section class="woche" style="--wt:${w.farbe}"><h2>${w.bonus ? "" : `Woche ${w.nr}: `}${esc(w.titel)} <small>${esc(w.zeit)}</small></h2><div class="tueren">`;
+    html += `<section class="woche" style="--wt:${w.farbe}"><h2><span class="teil">${w.bonus ? "Anhang" : `Teil ${w.nr}`}</span> ${esc(w.titel)} <small>${esc(w.zeit)}</small></h2><div class="tueren">`;
     for (let n = (w.nr - 1) * 6 + 1; n <= Math.min(w.nr * 6, TUEREN.length); n++) {
       const offen = istOffen(n), geloest = !!zustand.geloest[n];
       const klassen = ["tuer", geloest ? "geloest" : offen ? "offen" : "zu", (n === h && !geloest) ? "heute" : ""].join(" ");
       const bild = geloest && BILDER[n] ? `<span class="bildchen" style="background-image:url('${BILDER[n]}')"></span>` : "";
       const label = geloest ? `Tür ${n}, gelöst` : offen ? `Tür ${n} öffnen` : n === 25 ? "Das letzte Kapitel, öffnet am 25. Dezember nach Tür 24" : `Tür ${n}, öffnet am ${n}. Dezember`;
       html += `<button class="${klassen}" type="button" data-tuer="${n}" ${offen ? "" : "aria-disabled=\"true\""} aria-label="${label}">
-        ${bild}<span class="nr">${n}</span>${!offen ? `<span class="datum">${n === 25 ? "Bonus" : `ab ${n}.12.`}</span>` : ""}${geloest ? `<span class="stempel" aria-hidden="true">✓</span>` : ""}${familie["tuer-" + n] && familie["tuer-" + n].done ? `<span class="fam-punkt" title="Familienkarte gemacht"></span>` : ""}
+        ${bild}<span class="kartei-nr">Nr.</span><span class="nr">${n}</span>${!offen ? `<span class="datum">${n === 25 ? "Bonus" : `ab ${n}.12.`}</span>` : ""}${geloest ? `<span class="stempel" aria-hidden="true">GELÖST</span>` : ""}${familie["tuer-" + n] && familie["tuer-" + n].done ? `<span class="fam-punkt" title="Familienkarte gemacht"></span>` : ""}
       </button>`;
     }
     html += `</div></section>`;
